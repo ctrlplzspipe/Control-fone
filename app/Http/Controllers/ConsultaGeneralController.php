@@ -145,21 +145,21 @@ class ConsultaGeneralController extends Controller
                 INSERT INTO consultagral 
                 SELECT * FROM ( 
                     ( SELECT 0, 'FONE' AS FUENTE, MDP.fec_op AS QNA_AFEC, OPERACION, operacion AS COD_SEP, CURP, MDP.CVEPRE, {$mapSelectNS} AS NS, {$mapSelectCCT} AS CCT, RFC, 
-                      PRIMER_AP AS AP_PAT, SEGUNDO_AP AS AP_MAT, NOMBRE, FEC_INI, FEC_FIN, MDP.CPZA 
-                      FROM (
+                    PRIMER_AP AS AP_PAT, SEGUNDO_AP AS AP_MAT, NOMBRE, FEC_INI, FEC_FIN, MDP.CPZA 
+                    FROM (
                           SELECT * FROM {$tablaMDP} MDP 
-                          WHERE MDP.{$campo} LIKE ? AND OPERACION NOT IN ('08-98','08','8') AND MDP.FEC_FIN >= NOW() AND MDP.FECHA_BAJA = '' 
-                          ORDER BY FEC_OP_B DESC
-                      ) MDP 
-                      {$mapJoin} 
-                      LIMIT 80 
+                        WHERE MDP.{$campo} LIKE ? AND OPERACION NOT IN ('08-98','08','8') AND MDP.FEC_FIN >= NOW() AND MDP.FECHA_BAJA = '' 
+                        ORDER BY FEC_OP_B DESC
+                    ) MDP 
+                    {$mapJoin} 
+                    LIMIT 80 
                     ) 
                     UNION 
                     ( SELECT 0, 'FONE' AS FUENTE, MDP.fec_op AS QNA_AFEC, OPERACION, operacion AS COD_SEP, CURP, MDP.CVEPRE, '' AS NS, '' AS CCT, RFC, 
-                      PRIMER_AP AS AP_PAT, SEGUNDO_AP AS AP_MAT, NOMBRE, FEC_INI, FEC_FIN, MDP.CPZA 
-                      FROM {$tablaMDP} MDP 
-                      WHERE MDP.{$campo} LIKE ? AND (MDP.FEC_FIN < NOW() OR MDP.FECHA_BAJA != '') AND OPERACION NOT IN ('08-98','08','8') 
-                      ORDER BY CPZA, FEC_OP_B DESC LIMIT 80 
+                    PRIMER_AP AS AP_PAT, SEGUNDO_AP AS AP_MAT, NOMBRE, FEC_INI, FEC_FIN, MDP.CPZA 
+                    FROM {$tablaMDP} MDP 
+                    WHERE MDP.{$campo} LIKE ? AND (MDP.FEC_FIN < NOW() OR MDP.FECHA_BAJA != '') AND OPERACION NOT IN ('08-98','08','8') 
+                    ORDER BY CPZA, FEC_OP_B DESC LIMIT 80 
                     ) 
                 ) A ORDER BY CPZA, fec_ini DESC LIMIT 60
             ";

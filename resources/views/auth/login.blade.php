@@ -7,9 +7,10 @@
     <title>Identificación de usuario - Control de Plazas</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="{{ asset('jQuery/Alerts/jquery.alerts.css') }}" rel="stylesheet" type="text/css" />
-    <script type="text/javascript" src="{{ asset('js/jquery-1.4.2.min.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('jQuery/Alerts/jquery.alerts.js') }}"></script>
+    <!-- <link href="{{ asset('jQuery/Alerts/jquery.alerts.css') }}" rel="stylesheet" type="text/css" /> -->
+    <!-- <script type="text/javascript" src="{{ asset('js/jquery-1.4.2.min.js') }}"></script> -->
+    <!-- <script type="text/javascript" src="{{ asset('jQuery/Alerts/jquery.alerts.js') }}"></script> -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 
 <body class="bg-slate-100 min-h-screen flex flex-col justify-between font-sans">

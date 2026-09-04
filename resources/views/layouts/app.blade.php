@@ -6,18 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Sistema de Control de Plazas')</title>
 
-    <link href="{{ asset('css/format-commun.css') }}" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
+
     @stack('styles')
 </head>
 
 <body class="bg-slate-100 min-h-screen flex flex-col">
 
-    <!-- Encabezado (Equivalente a Encabezado.php) -->
+    <!-- Encabezado -->
     <header class="bg-white shadow border-b border-slate-200 p-4">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <img src="{{ asset('images/escudo_5.png') }}" class="h-10" alt="Escudo">
+                <img src="{{ asset('images/escudo-gob-mex.png') }}" class="h-10" alt="Escudo">
                 <div>
                     <h1 class="font-bold text-slate-800 text-lg leading-tight">Control de Plazas</h1>
                     <p class="text-xs text-slate-500">Departamento de Registro y Archivo</p>
@@ -32,10 +32,9 @@
         </div>
     </header>
 
-    <!-- Cuerpo Principal (Equivalente al FRAMESET central) -->
+    <!-- Cuerpo Principal -->
     <div class="flex flex-1 max-w-7xl w-full mx-auto my-4 gap-4 px-4">
 
-        <!-- Menú Lateral (Equivalente a Menu.php) -->
         <!-- Menú Lateral Dinámico -->
         <aside class="w-64 bg-white rounded-xl shadow-sm p-4 h-fit border border-slate-200">
             <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Menú Principal</h2>
@@ -45,8 +44,8 @@
                     @foreach ($menuPrincipal as $menu)
                         @if ($menu->mnu_submenu == 0)
                             <!-- Opción Simple -->
-                            <a href="{{ $menu->mnu_pagina }}"
-                                class="block px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-lg">
+                            <a href="{{ url($menu->mnu_pagina) }}" 
+                               class="block px-3 py-2 text-sm font-bold text-slate-800 hover:text-indigo-600 hover:bg-slate-50 rounded-lg">
                                 {{ $menu->mnu_descripcion }}
                             </a>
                         @else
@@ -57,8 +56,8 @@
                                 </span>
                                 <div class="pl-4 space-y-1 border-l-2 border-slate-200 ml-2">
                                     @foreach ($menu->submenus as $sub)
-                                        <a href="{{ $sub->mnu_pagina }}"
-                                            class="block px-3 py-1.5 text-xs text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-md">
+                                        <a href="{{ url($sub->mnu_pagina) }}"
+                                           class="block px-3 py-1.5 text-xs text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-md">
                                             {{ $sub->mnu_descripcion }}
                                         </a>
                                     @endforeach
@@ -68,18 +67,18 @@
                     @endforeach
                 @endif
 
-                <!-- Módulo Especial de Precarga (DIANA / ORLANDO) -->
+                <!-- Módulo Especial de Precarga -->
                 @if (!empty($tienePrecarga))
                     <div class="space-y-1 pt-2">
                         <span class="block px-3 py-2 text-sm font-bold text-amber-800 bg-amber-50 rounded-lg">
                             Precarga Especial
                         </span>
                         <div class="pl-4 space-y-1 border-l-2 border-amber-200 ml-2">
-                            <a href="precarga_ocupada.php"
+                            <a href="{{ url('precarga-ocupada') }}"
                                 class="block px-3 py-1.5 text-xs text-slate-600 hover:text-amber-700 hover:bg-amber-100 rounded-md">
                                 Ocupada
                             </a>
-                            <a href="precarga_prefoliosmap.php"
+                            <a href="{{ url('precarga-prefoliosmap') }}"
                                 class="block px-3 py-1.5 text-xs text-slate-600 hover:text-amber-700 hover:bg-amber-100 rounded-md">
                                 Prefoliosmap
                             </a>
@@ -97,13 +96,13 @@
             </nav>
         </aside>
 
-        <!-- Contenido Dinámico (Equivalente a FBienvenida.php) -->
+        <!-- Contenido Dinámico -->
         <main class="flex-1 bg-white rounded-xl shadow-sm p-6 border border-slate-200">
             @yield('content')
         </main>
     </div>
 
-    <!-- Pie de Página (Equivalente a Pie.php) -->
+    <!-- Pie de Página -->
     <footer class="bg-slate-800 text-slate-400 text-center text-xs py-3 mt-auto">
         &copy; {{ date('Y') }} Gobierno del Estado de México - SEIEM. Todos los derechos reservados.
     </footer>
