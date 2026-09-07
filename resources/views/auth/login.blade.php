@@ -1,100 +1,76 @@
-<!DOCTYPE html>
-<html lang="es">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Identificación de usuario - Control de Plazas</title>
+@section('title', 'Iniciar Sesión - Control de Plazas SEIEM')
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- <link href="{{ asset('jQuery/Alerts/jquery.alerts.css') }}" rel="stylesheet" type="text/css" /> -->
-    <!-- <script type="text/javascript" src="{{ asset('js/jquery-1.4.2.min.js') }}"></script> -->
-    <!-- <script type="text/javascript" src="{{ asset('jQuery/Alerts/jquery.alerts.js') }}"></script> -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
+@section('content')
+    <div class="flex items-center justify-center min-h-[calc(100vh-220px)] py-6 px-4">
+        <div
+            class="w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden transition-all duration-300">
 
-<body class="bg-slate-100 min-h-screen flex flex-col justify-between font-sans">
+            <!-- Franja de gradiente institucional EdoMéx -->
+            <div class="h-2.5 bg-gradient-to-r from-[#9B2242] via-[#7B1B34] to-[#B8975A]"></div>
 
-    @if (session('error'))
-        <script type="text/javascript">
-            $(document).ready(function () {
-                jAlert("{{ session('error') }}", 'Aviso', function () {
-                    window.location.href = "{{ route('login') }}";
-                });
-            });
-        </script>
-    @endif
-
-    <!-- Encabezado Ajustado con Imágenes Proporcionadas -->
-    <!-- Encabezado -->
-    <header class="bg-white border-b border-slate-200 py-4 px-8 shadow-sm">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-
-            <!-- Escudo Estado de México -->
-            <div class="flex items-center justify-start min-w-[200px]">
-                <img src="{{ asset('images/escudo-gob-mex.png') }}" class="h-28 md:h-24 w-auto object-contain"
-                    alt="Escudo Estado de México">
-            </div>
-
-            <!-- Título Central -->
-            <div class="text-center">
-                <h1 class="text-2xl md:text-3xl font-extrabold text-slate-800 tracking-tight">
-                    Control de Plazas
-                </h1>
-
-                <p class="text-slate-500 font-medium text-sm md:text-base">
-                    Departamento de Registro y Archivo
-                </p>
-            </div>
-
-            <!-- Logo SEIEM / EDOMÉX -->
-            <div class="flex items-center justify-end min-w-[200px]">
-                <img src="{{ asset('images/SEIEM.png') }}" class="h-12 md:h-14 w-auto object-contain"
-                    alt="SEIEM Estado de México">
-            </div>
-
-        </div>
-    </header>
-
-    <!-- Tarjeta del Formulario de Login -->
-    <main class="flex-1 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-lg border border-slate-200 w-full max-w-md p-8">
-            <div class="text-center mb-6">
-                <h2 class="text-2xl font-bold text-slate-800">Identificación de usuario</h2>
-                <p class="text-sm text-slate-500">Ingrese sus credenciales para acceder al sistema</p>
-            </div>
-
-            <form action="{{ route('login.post') }}" method="post" class="space-y-4">
-                @csrf
-
-                <div>
-                    <label for="log" class="block text-xs font-semibold text-slate-600 uppercase mb-1">Usuario</label>
-                    <input type="text" name="log" id="log" maxlength="10" placeholder="Ingrese usuario" required
-                        onchange="this.value = this.value.toUpperCase();"
-                        class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-slate-800">
+            <div class="p-6 sm:p-10">
+                <!-- Encabezado de la Tarjeta -->
+                <div class="text-center mb-8">
+                    <div
+                        class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#9B2242]/10 text-[#9B2242] mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800 tracking-tight">Identificación de usuario</h2>
+                    <p class="text-sm text-gray-500 mt-1">Ingrese sus credenciales para acceder al sistema</p>
                 </div>
 
-                <div>
-                    <label for="password"
-                        class="block text-xs font-semibold text-slate-600 uppercase mb-1">Contraseña</label>
-                    <input type="password" name="password" id="password" placeholder="••••••••" required
-                        onchange="this.value = this.value.toUpperCase();"
-                        class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-slate-800">
-                </div>
+                <!-- Formulario de Acceso -->
+                <form action="{{ route('login') }}" method="POST" class="space-y-6">
+                    @csrf
 
-                <button type="submit"
-                    class="w-full mt-2 bg-gradient-to-r from-slate-700 to-slate-900 hover:from-slate-800 hover:to-black text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200">
-                    Ingresar al sistema
-                </button>
-            </form>
+                    <!-- Campo Usuario (Nombre exacto del backend: log) -->
+                    <div>
+                        <label for="log" class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">
+                            Usuario
+                        </label>
+                        <div class="relative">
+                            <input type="text" id="log" name="log" value="{{ old('log') }}" placeholder="Ingrese su usuario"
+                                required autofocus oninput="this.value = this.value.toUpperCase()"
+                                class="w-full px-4 py-3 rounded-lg border border-gray-300 text-gray-800 uppercase placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#9B2242] focus:border-transparent transition-all text-sm font-medium">
+                        </div>
+                    </div>
+
+                    <!-- Campo Contraseña -->
+                    <div>
+                        <label for="password" class="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">
+                            Contraseña
+                        </label>
+                        <div class="relative">
+                            <input type="password" id="password" name="password" placeholder="••••••••" required
+                                class="w-full px-4 py-3 rounded-lg border border-gray-300 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#9B2242] focus:border-transparent transition-all text-sm font-medium">
+                        </div>
+                    </div>
+
+                    <!-- Botón de Ingreso -->
+                    <button type="submit"
+                        class="w-full bg-[#9B2242] hover:bg-[#7B1B34] active:bg-[#5C1326] text-white font-bold py-3.5 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 text-sm tracking-wide flex items-center justify-center gap-2">
+                        <span>Ingresar al sistema</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Pie de la Tarjeta -->
+            <div class="bg-gray-50 border-t border-gray-100 py-3 px-6 text-center">
+                <span class="text-xs text-gray-500 font-medium">
+                    Departamento de Registro y Archivo SEIEM
+                </span>
+            </div>
         </div>
-    </main>
-
-    <!-- Pie de página -->
-    <footer class="text-center py-4 text-xs text-slate-400">
-        &copy; {{ date('Y') }} Gobierno del Estado de México - SEIEM
-    </footer>
-
-</body>
-
-</html>
+    </div>
+@endsection

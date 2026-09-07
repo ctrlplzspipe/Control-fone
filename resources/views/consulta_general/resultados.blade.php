@@ -1,115 +1,242 @@
 @extends('layouts.app')
 
+@section('title', 'Resultados de Consulta General - Control de Plazas SEIEM')
+
+@push('styles')
+    <!-- DataTables CSS y Botones -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+
+    <style>
+        /* Personalización DataTables para Tailwind */
+        .dataTables_wrapper {
+            padding: 1rem 0;
+            font-size: 0.8125rem;
+        }
+
+        table.dataTable {
+            border-collapse: collapse !important;
+            width: 100% !important;
+        }
+
+        table.dataTable thead th {
+            background-color: #1e293b !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            padding: 0.75rem 0.85rem !important;
+            border-bottom: 2px solid #9B2242 !important;
+            white-space: nowrap;
+        }
+
+        table.dataTable tbody tr {
+            background-color: #ffffff !important;
+            transition: background-color 0.15s ease;
+        }
+
+        table.dataTable tbody tr:hover {
+            background-color: #f8fafc !important;
+        }
+
+        table.dataTable tbody td {
+            padding: 0.65rem 0.85rem !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+            white-space: nowrap;
+        }
+
+        /* Estilo de los Botones del DataTable */
+        .dt-buttons {
+            display: flex !important;
+            gap: 0.5rem !important;
+            margin-bottom: 1rem !important;
+        }
+
+        .btn-dt-back {
+            background-color: #64748b !important;
+            color: #ffffff !important;
+            border: none !important;
+            border-radius: 0.5rem !important;
+            padding: 0.45rem 1rem !important;
+            font-size: 0.8125rem !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .btn-dt-back:hover {
+            background-color: #475569 !important;
+        }
+
+        .btn-dt-excel {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+            color: #ffffff !important;
+            border: none !important;
+            border-radius: 0.5rem !important;
+            padding: 0.45rem 1rem !important;
+            font-size: 0.8125rem !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .btn-dt-excel:hover {
+            background: linear-gradient(135deg, #047857 0%, #065f46 100%) !important;
+        }
+
+        .dataTables_filter input {
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 0.5rem !important;
+            padding: 0.35rem 0.75rem !important;
+            outline: none !important;
+        }
+
+        .dataTables_filter input:focus {
+            border-color: #9B2242 !important;
+        }
+    </style>
+@endpush
+
 @section('content')
-<div class="container-fluid mt-4">
-    <div class="card text-center shadow-sm">
-        <div class="card-header fw-bold">
-            Consulta GENERAL {{ $campo }}: {{ $dato }}
-        </div>
+    <div class="space-y-6">
 
-        <div id="barra" class="progress my-2" style="height: 20px;">
-            <div class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" style="width: 100%">
-                Espere cargando datos...
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="h-1.5 bg-gradient-to-r from-[#9B2242] via-[#7B1B34] to-[#B8975A]"></div>
+
+            <div class="p-6 sm:p-8">
+                <!-- Header de Resultados -->
+                <div
+                    class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-4 mb-6">
+                    <div>
+                        <span
+                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#B8975A]/10 text-[#B8975A] mb-2">
+                            Resultado de Búsqueda
+                        </span>
+                        <h1 class="text-xl sm:text-2xl font-extrabold text-gray-800 tracking-tight">
+                            Consulta General {{ $campo }}: <span class="text-[#9B2242] font-mono">{{ $dato }}</span>
+                        </h1>
+                    </div>
+                </div>
+
+                <!-- Indicador de Carga Bar Style -->
+                <div id="barra" class="mb-6">
+                    <div class="w-full bg-gray-100 rounded-xl overflow-hidden p-1 border border-gray-200">
+                        <div
+                            class="bg-[#9B2242] text-white text-xs font-bold py-1.5 px-3 rounded-lg text-center animate-pulse flex items-center justify-center gap-2">
+                            <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                                </circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                            Espere, cargando datos desde la base de datos...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contenedor Tabla -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-gray-700 border-collapse" id="iddatatable">
+                        <thead>
+                            <tr>
+                                <th>Fuente</th>
+                                <th>QNA_AFEC</th>
+                                <th>OPERACION</th>
+                                <th>COD_SEP</th>
+                                <th>CURP</th>
+                                <th>CVEPRE</th>
+                                <th>NS</th>
+                                <th>CCT</th>
+                                <th>RFC</th>
+                                <th>AP_PAT</th>
+                                <th>AP_MAT</th>
+                                <th>NOMBRE</th>
+                                <th>FECHA_INI</th>
+                                <th>FECHA_FIN</th>
+                                <th>CPZA</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Carga dinámica AJAX -->
+                        </tbody>
+                    </table>
+                </div>
+
             </div>
         </div>
 
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered compact nowrap w-100" id="iddatatable">
-                    <thead>
-                        <tr>
-                            <th>Fuente</th>
-                            <th>QNA_AFEC</th>
-                            <th>OPERACION</th>
-                            <th>COD_SEP</th>
-                            <th>CURP</th>
-                            <th>CVEPRE</th>
-                            <th>NS</th>
-                            <th>CCT</th>
-                            <th>RFC</th>
-                            <th>AP_PAT</th>
-                            <th>AP_MAT</th>
-                            <th>NOMBRE</th>
-                            <th>FECHA_INI</th>
-                            <th>FECHA_FIN</th>
-                            <th>CPZA</th>
-                        </tr>
-                    </thead>
-                </table>
-            </div>
-        </div>
     </div>
-</div>
-
-{{-- Scripts para DataTables --}}
-<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
-<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css">
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
-
-<script>
-$(document).ready(function () {
-    var campo = @json($campo);
-    var dato = @json($dato);
-    
-    var titleF = "ConsultaGRAL_" + new Date().toISOString().slice(0,10) + "_" + new Date().getTime();
-    var url = "{{ route('consulta.general.data') }}?campo=" + campo + "&dato=" + dato;
-
-    $('#iddatatable').DataTable({
-        "initComplete": function () {
-            $('#barra').hide();
-        },
-        "order": [[0, "asc"]],
-        "pageLength": 50,
-        "dom": 'lBfrtip',
-        "ajax": {
-            "method": "POST",
-            "url": url,
-            "headers": {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            }
-        },
-        "columnDefs": [
-            { "type": "string", "targets": [5] }
-        ],
-        "buttons": [
-            {
-                text: '<i class="fa fa-arrow-left"></i> Regresar',
-                className: "btn btn-secondary",
-                action: function () {
-                    window.location.href = "{{ route('consulta.general') }}";
-                }
-            },
-            {
-                extend: 'excel',
-                title: titleF,
-                className: "btn btn-success",
-                text: 'Excel <i class="fa fa-table"></i>'
-            }
-        ],
-        "columns": [
-            { "data": "FUENTE" },
-            { "data": "QNA_AFEC" },
-            { "data": "OPERACION" },
-            { "data": "COD_SEP" },
-            { "data": "CURP" },
-            { "data": "CVEPRE" },
-            { "data": "NS" },
-            { "data": "CCT" },
-            { "data": "RFC" },
-            { "data": "AP_PAT" },
-            { "data": "AP_MAT" },
-            { "data": "NOMBRE" },
-            { "data": "FECHA_INI" },
-            { "data": "FECHA_FIN" },
-            { "data": "CPZA" }
-        ]
-    });
-});
-</script>
 @endsection
+
+@push('scripts')
+    <!-- jQuery y DataTables JS -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            var campo = @json($campo);
+            var dato = @json($dato);
+
+            var titleF = "ConsultaGRAL_" + new Date().toISOString().slice(0, 10) + "_" + new Date().getTime();
+            var url = "{{ route('consulta.general.data') }}?campo=" + campo + "&dato=" + dato;
+
+            $('#iddatatable').DataTable({
+                "initComplete": function () {
+                    $('#barra').hide();
+                },
+                "order": [[0, "asc"]],
+                "pageLength": 50,
+                "dom": '<"flex flex-col sm:flex-row items-center justify-between gap-4 mb-4"lBf>rt<"flex flex-col sm:flex-row items-center justify-between gap-4 mt-4"ip>',
+                "ajax": {
+                    "method": "POST",
+                    "url": url,
+                    "headers": {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                },
+                "columnDefs": [
+                    { "type": "string", "targets": [5] }
+                ],
+                "buttons": [
+                    {
+                        text: '← Regresar',
+                        className: "btn-dt-back",
+                        action: function () {
+                            window.location.href = "{{ route('consulta.general') }}";
+                        }
+                    },
+                    {
+                        extend: 'excelHtml5',
+                        title: titleF,
+                        className: "btn-dt-excel",
+                        text: '📊 Descargar Excel'
+                    }
+                ],
+                "columns": [
+                    { "data": "FUENTE" },
+                    { "data": "QNA_AFEC" },
+                    { "data": "OPERACION" },
+                    { "data": "COD_SEP" },
+                    { "data": "CURP" },
+                    { "data": "CVEPRE" },
+                    { "data": "NS" },
+                    { "data": "CCT" },
+                    { "data": "RFC" },
+                    { "data": "AP_PAT" },
+                    { "data": "AP_MAT" },
+                    { "data": "NOMBRE" },
+                    { "data": "FECHA_INI" },
+                    { "data": "FECHA_FIN" },
+                    { "data": "CPZA" }
+                ],
+                "language": {
+                    "url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+                }
+            });
+        });
+    </script>
+@endpush

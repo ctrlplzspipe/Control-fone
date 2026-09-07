@@ -3,7 +3,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
+USE Illuminate\Support\Facades\Storage;
 use DateTime;
 use ZipArchive;
 use Exception;
@@ -44,7 +44,7 @@ class AnaliticoController extends Controller
 
         $request->validate([
             'quincena' => ['required', 'regex:/^20[0-9]{2}(0[1-9]|1[0-9]|2[0-4])$/'],
-            'archivo'  => ['required', 'file', 'mimes:zip', 'max:512000'],
+            'archivo' => ['required', 'file', 'mimes:zip', 'max:512000'],
         ]);
 
         $qna = $request->input('quincena');
@@ -61,7 +61,7 @@ class AnaliticoController extends Controller
 
         $fileZip = $request->file('archivo');
         $zipPath = $fileZip->storeAs('temp', $fileZip->getClientOriginalName());
-        $fullZipPath = storage_path('app/' . $zipPath);
+        $fullZipPath = Storage::path($zipPath);
 
         $zip = new ZipArchive;
         $target_r = '';
@@ -75,7 +75,7 @@ class AnaliticoController extends Controller
 
             $target_r = $tempPath . '/' . $extractedFileName;
             $target_w = $tempPath . '/w_' . $extractedFileName;
-            $errores  = $tempPath . '/err_analitico_' . $qna . '.txt';
+            $errores = $tempPath . '/err_analitico_' . $qna . '.txt';
 
             unlink($fullZipPath); // Borramos el ZIP subido
         } else {
@@ -101,8 +101,8 @@ class AnaliticoController extends Controller
             DB::statement("CREATE TABLE {$tabla} LIKE analitico_struct");
 
             // 2. Apertura de Archivos
-            $handle  = fopen($target_r, "r");
-            $file    = fopen($target_w, "w");
+            $handle = fopen($target_r, "r");
+            $file = fopen($target_w, "w");
             $fileErr = fopen($errores, "w");
 
             $i = 0;
@@ -264,7 +264,9 @@ class AnaliticoController extends Controller
         $fechmes = ["00", "01", "01", "02", "02", "03", "03", "04", "04", "05", "05", "06", "06", "07", "07", "08", "08", "09", "09", "10", "10", "11", "11", "12", "12"];
 
         $qna = (int) substr($qna_ini, 4, 2);
-        if ($qna > 24) { $qna = 24; }
+        if ($qna > 24) {
+            $qna = 24;
+        }
 
         $anio = substr($qna_ini, 0, 4);
         return new DateTime("{$fechmes[$qna]}/{$fechdia[$qna]}/{$anio}");
@@ -283,7 +285,9 @@ class AnaliticoController extends Controller
         $fechmes = ["00", "01", "01", "02", "02", "03", "03", "04", "04", "05", "05", "06", "06", "07", "07", "08", "08", "09", "09", "10", "10", "11", "11", "12", "12"];
 
         $qna = (int) substr($qna_ini, 4, 2);
-        if ($qna > 24) { $qna = 24; }
+        if ($qna > 24) {
+            $qna = 24;
+        }
 
         $anio = (int) substr($qna_ini, 0, 4);
         if (($anio % 400 == 0) || ($anio % 4 == 0 && $anio % 100 != 0)) {
@@ -301,10 +305,42 @@ class AnaliticoController extends Controller
         $handle = fopen($fileCsvPath, 'r');
         $batch = [];
         $columns = [
-            'RFC', 'AP_PAT', 'AP_MAT', 'NOMBRE', 'CURP', 'CVEPRE', 'DESDE', 'HASTA', 'ST', 'MOT',
-            'ING_SEP', 'ING_SUB', 'FRI', 'NS', 'NP', 'CT', 'UD', 'MUN', 'NIVEL_MAX_EST', 'NO_SS',
-            'DIRECCION', 'COLONIA', 'LOCALIDAD', 'BASURA', 'SEP_1', 'SEP_2', 'SEP_3', 'FECHA_INI', 'FECHA_FIN',
-            'CODPAGOUNIDAD', 'SUBUNIDAD', 'CATEGORIA', 'HORAS', 'CONSPLAZA', 'CVEPRE21', 'CPZA'
+            'RFC',
+            'AP_PAT',
+            'AP_MAT',
+            'NOMBRE',
+            'CURP',
+            'CVEPRE',
+            'DESDE',
+            'HASTA',
+            'ST',
+            'MOT',
+            'ING_SEP',
+            'ING_SUB',
+            'FRI',
+            'NS',
+            'NP',
+            'CT',
+            'UD',
+            'MUN',
+            'NIVEL_MAX_EST',
+            'NO_SS',
+            'DIRECCION',
+            'COLONIA',
+            'LOCALIDAD',
+            'BASURA',
+            'SEP_1',
+            'SEP_2',
+            'SEP_3',
+            'FECHA_INI',
+            'FECHA_FIN',
+            'CODPAGOUNIDAD',
+            'SUBUNIDAD',
+            'CATEGORIA',
+            'HORAS',
+            'CONSPLAZA',
+            'CVEPRE21',
+            'CPZA'
         ];
 
         DB::beginTransaction();

@@ -8,6 +8,7 @@ use App\Services\PlantillaAnalizadorService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 
 class AnalizadorController extends Controller
 {
@@ -22,12 +23,16 @@ class AnalizadorController extends Controller
             'archivoP' => 'required|file|mimes:xlsx,xls',
         ]);
 
-        // Cargar la Fuente de Datos
-        $spreadsheetFd = IOFactory::load($request->file('archivoF')->getRealPath());
+        // Cargar la Fuente de Datos (Modo optimizado: solo lectura de datos)
+        $readerFd = IOFactory::createReaderForFile($request->file('archivoF')->getRealPath());
+        $readerFd->setReadDataOnly(true);
+        $spreadsheetFd = $readerFd->load($request->file('archivoF')->getRealPath());
         $rowsFdRaw = $spreadsheetFd->getActiveSheet()->toArray(null, true, true, false);
 
-        // Cargar la Plantilla Ideal
-        $spreadsheetPi = IOFactory::load($request->file('archivoP')->getRealPath());
+        // Cargar la Plantilla Ideal (Modo optimizado)
+        $readerPi = IOFactory::createReaderForFile($request->file('archivoP')->getRealPath());
+        $readerPi->setReadDataOnly(true);
+        $spreadsheetPi = $readerPi->load($request->file('archivoP')->getRealPath());
         $rowsPiRaw = $spreadsheetPi->getActiveSheet()->toArray(null, true, true, false);
 
         // Convertir la fuente de datos a arreglo asociativo usando los encabezados de la primera fila
@@ -48,10 +53,12 @@ class AnalizadorController extends Controller
         $rowsPiFormatted = [];
         foreach ($rowsPiRaw as $row) {
             $colData = [];
-            $colLetter = 'A';
+            $colIndex = 1;
             foreach ($row as $value) {
+                // Utiliza la función nativa de PhpSpreadsheet para obtener la letra exacta (A, B... Z, AA, AB)
+                $colLetter = Coordinate::stringFromColumnIndex($colIndex);
                 $colData[$colLetter] = $value;
-                $colLetter++;
+                $colIndex++;
             }
             $rowsPiFormatted[] = $colData;
         }

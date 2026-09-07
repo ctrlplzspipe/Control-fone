@@ -1,9 +1,43 @@
-@import 'tailwindcss';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
+@layer utilities {
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    /* Paleta Oficial Estado de México */
+    .bg-edomex-guinda {
+        background-color: #9B2242;
+    }
+
+    .bg-edomex-guinda-dark {
+        background-color: #7B1B34;
+    }
+
+    .bg-edomex-dorado {
+        background-color: #B8975A;
+    }
+
+    .bg-edomex-dorado-dark {
+        background-color: #9A7C48;
+    }
+
+    .text-edomex-guinda {
+        color: #9B2242;
+    }
+
+    .text-edomex-dorado {
+        color: #B8975A;
+    }
+
+    .border-edomex-guinda {
+        border-color: #9B2242;
+    }
+
+    .border-edomex-dorado {
+        border-color: #B8975A;
+    }
+
+    .focus-ring-edomex {
+        --tw-ring-color: #9B2242;
+    }
 }
