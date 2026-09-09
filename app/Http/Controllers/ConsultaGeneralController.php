@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 
 class ConsultaGeneralController extends Controller
@@ -58,12 +59,26 @@ class ConsultaGeneralController extends Controller
      */
     public function resultados(Request $request)
     {
-        $request->validate([
-            'optTipo' => 'required|in:CURP,RFC,CVEPRE',
-            'dato' => 'required|string|max:24',
+        // Obtener la opción enviada sin importar si la vista envía 'optTipo' o 'campo'
+        $tipoCampo = $request->input('optTipo') ?? $request->input('campo');
+
+        // Validar manualmente para evitar loops de redirección 302
+        $validator = Validator::make([
+            'optTipo' => $tipoCampo,
+            'dato' => $request->input('dato'),
+        ], [
+            'optTipo' => 'required|in:CURP,RFC,CVEPRE,CCT,NOMBRE',
+            'dato' => 'required|string|max:100',
         ]);
 
-        $campo = $request->input('optTipo');
+        // Si falla la validación o entran por GET sin datos, mandar limpia y directamente a la vista principal
+        if ($validator->fails()) {
+            return redirect()->route('consulta.general')
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $campo = $tipoCampo;
         $dato = strtoupper(trim($request->input('dato')));
 
         return view('consulta_general.resultados', compact('campo', 'dato'));
@@ -78,7 +93,7 @@ class ConsultaGeneralController extends Controller
         $dato = strtoupper(trim($request->query('dato')));
 
         // Validar columnas permitidas para evitar SQL Injection dinámica
-        $columnasPermitidas = ['CURP', 'RFC', 'CVEPRE'];
+        $columnasPermitidas = ['CURP', 'RFC', 'CVEPRE', 'CCT', 'NOMBRE'];
         if (!in_array($campo, $columnasPermitidas)) {
             return response()->json(['data' => []]);
         }
@@ -147,7 +162,7 @@ class ConsultaGeneralController extends Controller
                     ( SELECT 0, 'FONE' AS FUENTE, MDP.fec_op AS QNA_AFEC, OPERACION, operacion AS COD_SEP, CURP, MDP.CVEPRE, {$mapSelectNS} AS NS, {$mapSelectCCT} AS CCT, RFC, 
                     PRIMER_AP AS AP_PAT, SEGUNDO_AP AS AP_MAT, NOMBRE, FEC_INI, FEC_FIN, MDP.CPZA 
                     FROM (
-                          SELECT * FROM {$tablaMDP} MDP 
+                        SELECT * FROM {$tablaMDP} MDP 
                         WHERE MDP.{$campo} LIKE ? AND OPERACION NOT IN ('08-98','08','8') AND MDP.FEC_FIN >= NOW() AND MDP.FECHA_BAJA = '' 
                         ORDER BY FEC_OP_B DESC
                     ) MDP 

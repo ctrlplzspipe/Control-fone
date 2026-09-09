@@ -131,5 +131,13 @@
                 }
             });
         });
+
+        window.addEventListener('pageshow', function (event) {
+            var modalCarga = document.getElementById('loadingModal');
+            if (modalCarga) {
+                modalCarga.classList.add('hidden');
+            }
+        })
     </script>
+
 @endsection

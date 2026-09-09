@@ -20,7 +20,7 @@ class AuthController extends Controller
 
         return view('auth.login');
     }
-    
+
 
     public function login(Request $request): RedirectResponse
     {
@@ -53,7 +53,8 @@ class AuthController extends Controller
             Session::put('UsuTip', $userRow->tipusr ?? 1);   // Identificador de rol
             Session::put('SesNom', $nombreCompleto ?: $userRow->ocuenta);
 
-            return redirect()->route('mainframe');
+            return redirect()->route('mainframe')
+                ->with('login_success', 'Sesion iniciada correctamente como: ' . ($nombreCompleto ?: $userRow->ocuenta));
         }
 
         return redirect()->route('login')->with('error', 'Usuario o contraseña incorrectos.');
@@ -62,6 +63,7 @@ class AuthController extends Controller
     public function logout(): RedirectResponse
     {
         Session::flush();
-        return redirect()->route('login');
+        return redirect()->route('login')
+            ->with('success', 'Sesión cerrada correctamente.');
     }
 }

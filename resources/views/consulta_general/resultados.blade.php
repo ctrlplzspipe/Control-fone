@@ -98,6 +98,62 @@
 @section('content')
     <div class="space-y-6">
 
+        <!-- Widget de Re-búsqueda Rápida Superior -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
+            <div class="flex items-center justify-between pb-3 mb-4 border-b border-gray-100">
+                <h2 class="text-sm font-bold text-gray-700 uppercase tracking-wider flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-[#9B2242]" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <span>Re-búsqueda Rápida</span>
+                </h2>
+                <span class="text-[11px] text-gray-400">Realiza una nueva consulta directamente</span>
+            </div>
+
+            <form action="{{ route('consulta.general.resultados') }}" method="POST"
+                class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                @csrf
+                <!-- Selector de Campo -->
+                <div class="sm:col-span-4">
+                    <label for="campo" class="block text-[11px] font-bold text-gray-600 uppercase mb-1">Buscar por:</label>
+                    <select name="campo" id="campo" required
+                        class="w-full px-3 py-2 text-xs rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#9B2242] focus:border-transparent outline-none bg-white font-medium">
+                        <option value="RFC" {{ $campo === 'RFC' ? 'selected' : '' }}>RFC</option>
+                        <option value="CURP" {{ $campo === 'CURP' ? 'selected' : '' }}>CURP</option>
+                        <option value="NOMBRE" {{ $campo === 'NOMBRE' ? 'selected' : '' }}>Nombre / Apellidos</option>
+                        <option value="CCT" {{ $campo === 'CCT' ? 'selected' : '' }}>Clave CCT / FCT</option>
+                        <option value="CVEPRE" {{ $campo === 'CVEPRE' ? 'selected' : '' }}>Clave Presupuestal (CVEPRE)
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Input del Dato -->
+                <div class="sm:col-span-5">
+                    <label for="dato" class="block text-[11px] font-bold text-gray-600 uppercase mb-1">Término de
+                        Búsqueda:</label>
+                    <input type="text" name="dato" id="dato" value="{{ $dato }}" required
+                        placeholder="Ingrese el parámetro..."
+                        class="w-full px-3 py-2 text-xs rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#9B2242] focus:border-transparent outline-none uppercase font-mono">
+                </div>
+
+                <!-- Botón de Búsqueda -->
+                <div class="sm:col-span-3">
+                    <button type="submit"
+                        class="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#9B2242] hover:bg-[#7B1B34] text-white text-xs font-bold rounded-xl shadow-xs transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <span>Consultar</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Contenedor Principal de la Tabla -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="h-1.5 bg-gradient-to-r from-[#9B2242] via-[#7B1B34] to-[#B8975A]"></div>
 

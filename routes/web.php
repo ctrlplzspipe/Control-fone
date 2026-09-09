@@ -35,7 +35,7 @@ Route::middleware(['valid.user'])->group(function () {
 
     // Módulo: Consulta General
     Route::get('/consulta-general', [ConsultaGeneralController::class, 'index'])->name('consulta.general');
-    Route::post('/consulta-general/resultados', [ConsultaGeneralController::class, 'resultados'])->name('consulta.general.resultados');
+    Route::match(['get', 'post'], '/consulta-general/resultados', [ConsultaGeneralController::class, 'resultados'])->name('consulta.general.resultados');
     Route::post('/consulta-general/data', [ConsultaGeneralController::class, 'data'])->name('consulta.general.data');
 
     // Módulo: Auditoría de Plantillas
