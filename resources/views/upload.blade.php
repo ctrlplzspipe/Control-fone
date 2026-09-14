@@ -101,7 +101,7 @@
                     </div>
                 </div>
 
-                <form id="formAnalizador" class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+                <form id="formAnalizador" class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6 items-end no-loader">
                     @csrf
 
                     <!-- Input Fuente de Datos -->
@@ -111,10 +111,10 @@
                         </label>
                         <div class="relative">
                             <input type="file" name="archivoF" id="archivoF" required accept=".xlsx, .xls" class="block w-full text-xs text-gray-500
-                                file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0
-                                file:text-xs file:font-semibold file:bg-[#9B2242]/10 file:text-[#9B2242]
-                                hover:file:bg-[#9B2242]/20 file:transition-colors file:cursor-pointer
-                                border border-gray-200 rounded-xl p-1.5 focus:outline-none focus:border-[#9B2242]">
+                                        file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0
+                                        file:text-xs file:font-semibold file:bg-[#9B2242]/10 file:text-[#9B2242]
+                                        hover:file:bg-[#9B2242]/20 file:transition-colors file:cursor-pointer
+                                        border border-gray-200 rounded-xl p-1.5 focus:outline-none focus:border-[#9B2242]">
                         </div>
                     </div>
 
@@ -125,10 +125,10 @@
                         </label>
                         <div class="relative">
                             <input type="file" name="archivoP" id="archivoP" required accept=".xlsx, .xls" class="block w-full text-xs text-gray-500
-                                file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0
-                                file:text-xs file:font-semibold file:bg-[#9B2242]/10 file:text-[#9B2242]
-                                hover:file:bg-[#9B2242]/20 file:transition-colors file:cursor-pointer
-                                border border-gray-200 rounded-xl p-1.5 focus:outline-none focus:border-[#9B2242]">
+                                        file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0
+                                        file:text-xs file:font-semibold file:bg-[#9B2242]/10 file:text-[#9B2242]
+                                        hover:file:bg-[#9B2242]/20 file:transition-colors file:cursor-pointer
+                                        border border-gray-200 rounded-xl p-1.5 focus:outline-none focus:border-[#9B2242]">
                         </div>
                     </div>
 
@@ -225,6 +225,7 @@
                     method: 'POST',
                     body: formData,
                     headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     }
                 })
@@ -239,15 +240,16 @@
                         $('#contenedorTabla').removeClass('hidden');
                         $('#btnProcesar').prop('disabled', false).removeClass('opacity-50 cursor-not-allowed');
 
-                        // Destruir tabla anterior si existía
+                        notify(`Análisis completado: ${data.length} registro(s) procesado(s).`, 'exito');
+
                         if (dataTableInstance !== null) {
                             dataTableInstance.destroy();
                         }
 
-                        // Inicializar DataTable con los nuevos datos
                         dataTableInstance = $('#tablaResultados').DataTable({
                             data: data,
                             dom: 'Bfrtip',
+                            scrollX: true,
                             buttons: [
                                 {
                                     extend: 'excelHtml5',
@@ -287,7 +289,12 @@
                     .catch(error => {
                         $('#cargando').addClass('hidden');
                         $('#btnProcesar').prop('disabled', false).removeClass('opacity-50 cursor-not-allowed');
-                        alert('Ocurrió un error al procesar el archivo: ' + error.message);
+                        Swal.fire({
+                            title: 'Error de Procesamiento',
+                            text: error.message || 'Ocurrió un error inesperado al analizar el archivo.',
+                            icon: 'error',
+                            confirmButtonColor: '#9B2242'
+                        });
                     });
             });
         });

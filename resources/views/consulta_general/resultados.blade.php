@@ -112,43 +112,45 @@
                 <span class="text-[11px] text-gray-400">Realiza una nueva consulta directamente</span>
             </div>
 
-            <form action="{{ route('consulta.general.resultados') }}" method="POST"
-                class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+            <form id="formReBusqueda" action="{{ route('consulta.general.resultados') }}" method="POST">
                 @csrf
-                <!-- Selector de Campo -->
-                <div class="sm:col-span-4">
-                    <label for="campo" class="block text-[11px] font-bold text-gray-600 uppercase mb-1">Buscar por:</label>
-                    <select name="campo" id="campo" required
-                        class="w-full px-3 py-2 text-xs rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#9B2242] focus:border-transparent outline-none bg-white font-medium">
-                        <option value="RFC" {{ $campo === 'RFC' ? 'selected' : '' }}>RFC</option>
-                        <option value="CURP" {{ $campo === 'CURP' ? 'selected' : '' }}>CURP</option>
-                        <option value="NOMBRE" {{ $campo === 'NOMBRE' ? 'selected' : '' }}>Nombre / Apellidos</option>
-                        <option value="CCT" {{ $campo === 'CCT' ? 'selected' : '' }}>Clave CCT / FCT</option>
-                        <option value="CVEPRE" {{ $campo === 'CVEPRE' ? 'selected' : '' }}>Clave Presupuestal (CVEPRE)
-                        </option>
-                    </select>
-                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-start">
+                    
+                    <!-- Selector de Campo -->
+                    <div class="sm:col-span-4">
+                        <label for="optTipoRe" class="block text-[11px] font-bold text-gray-600 uppercase mb-1">Buscar por:</label>
+                        <select name="campo" id="optTipoRe" required
+                            class="w-full px-3 py-2 text-xs rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#9B2242] focus:border-transparent outline-none bg-white font-medium cursor-pointer">
+                            <option value="CURP" {{ $campo === 'CURP' ? 'selected' : '' }}>CURP</option>
+                            <option value="RFC" {{ $campo === 'RFC' ? 'selected' : '' }}>RFC</option>
+                            <option value="CVEPRE" {{ $campo === 'CVEPRE' ? 'selected' : '' }}>Clave Presupuestal (CVEPRE)</option>
+                        </select>
+                    </div>
 
-                <!-- Input del Dato -->
-                <div class="sm:col-span-5">
-                    <label for="dato" class="block text-[11px] font-bold text-gray-600 uppercase mb-1">Término de
-                        Búsqueda:</label>
-                    <input type="text" name="dato" id="dato" value="{{ $dato }}" required
-                        placeholder="Ingrese el parámetro..."
-                        class="w-full px-3 py-2 text-xs rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#9B2242] focus:border-transparent outline-none uppercase font-mono">
-                </div>
+                    <!-- Input del Dato -->
+                    <div class="sm:col-span-5">
+                        <label for="datoRe" class="block text-[11px] font-bold text-gray-600 uppercase mb-1">
+                            Término de Búsqueda:
+                        </label>
+                        <input type="text" name="dato" id="datoRe" value="{{ $dato }}" required autocomplete="off"
+                            placeholder="Ingrese el parámetro..."
+                            class="w-full px-3 py-2 text-xs rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#9B2242] focus:border-transparent outline-none uppercase font-mono">
+                        <p id="errorMensajeRe" class="text-xs text-red-600 mt-1 font-semibold hidden"></p>
+                    </div>
 
-                <!-- Botón de Búsqueda -->
-                <div class="sm:col-span-3">
-                    <button type="submit"
-                        class="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#9B2242] hover:bg-[#7B1B34] text-white text-xs font-bold rounded-xl shadow-xs transition-all">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                        <span>Consultar</span>
-                    </button>
+                    <!-- Botón de Búsqueda -->
+                    <div class="sm:col-span-3 pt-5">
+                        <button type="submit"
+                            class="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#9B2242] hover:bg-[#7B1B34] text-white text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            <span>Consultar</span>
+                        </button>
+                    </div>
+
                 </div>
             </form>
         </div>
@@ -293,6 +295,92 @@
                     "url": "https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
                 }
             });
+
+            // ==========================================
+            // LÓGICA Y VALIDACIÓN ESTRICTA DE LA RE-BÚSQUEDA
+            // ==========================================
+            const regexCURP = /^[A-Z]{1}[AEIOU]{1}[A-Z]{2}[0-9]{2}(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])[HM]{1}(AS|BC|BS|CC|CL|CM|CS|CH|DF|DG|GT|GR|HG|JC|MC|MN|MS|NT|NL|OC|PL|QT|QR|SP|SL|SR|TC|TS|TL|VZ|YN|ZS|NE)[B-DF-HJ-NP-TV-Z]{3}[0-9A-Z]{1}[0-9]{1}$/;
+            const regexRFC  = /^([A-ZÑ&]{3,4})([0-9]{2})(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])([A-Z0-9]{3})?$/;
+
+            const selectTipoRe = document.getElementById('optTipoRe');
+            const inputDatoRe = document.getElementById('datoRe');
+            const formReBusqueda = document.getElementById('formReBusqueda');
+            const errorMensajeRe = document.getElementById('errorMensajeRe');
+
+            function actualizarConfiguracionRe() {
+                errorMensajeRe.classList.add('hidden');
+                errorMensajeRe.innerText = '';
+
+                const tipo = selectTipoRe.value;
+                if (tipo === 'CURP') {
+                    inputDatoRe.placeholder = 'Ej. ABCD900101HMCXXA01 (18 caract.)';
+                    inputDatoRe.maxLength = 18;
+                } else if (tipo === 'RFC') {
+                    inputDatoRe.placeholder = 'Ej. ABCD900101XXX (10 a 13 caract.)';
+                    inputDatoRe.maxLength = 13;
+                } else if (tipo === 'CVEPRE') {
+                    inputDatoRe.placeholder = 'CVEPRE (23 o 24 caracteres)';
+                    inputDatoRe.maxLength = 24;
+                }
+            }
+
+            if (selectTipoRe && inputDatoRe) {
+                actualizarConfiguracionRe();
+
+                selectTipoRe.addEventListener('change', function () {
+                    inputDatoRe.value = '';
+                    actualizarConfiguracionRe();
+                });
+
+                inputDatoRe.addEventListener('input', function () {
+                    const tipo = selectTipoRe.value;
+                    errorMensajeRe.classList.add('hidden');
+
+                    if (tipo === 'CURP' || tipo === 'RFC') {
+                        this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                    } else if (tipo === 'CVEPRE') {
+                        this.value = this.value.toUpperCase().replace(/[^A-Z0-9. ]/g, '');
+                    }
+                });
+
+                formReBusqueda.addEventListener('submit', function (e) {
+                    const tipo = selectTipoRe.value;
+                    const valor = inputDatoRe.value.trim();
+
+                    let error = '';
+
+                    // 1. Evitar cadenas repetidas del mismo carácter (Ej: 22222... o DDDDD...)
+                    if (/^(.)\1+$/.test(valor)) {
+                        error = 'El valor ingresado no es válido (no puede ser el mismo carácter repetido).';
+                    } 
+                    // 2. Validación por Expresión Regular oficial según la opción seleccionada
+                    else if (tipo === 'CURP') {
+                        if (!regexCURP.test(valor)) {
+                            error = 'La CURP ingresada no cumple con la estructura oficial de 18 caracteres (Ej. ABCD900101HMCXXA01).';
+                        }
+                    } else if (tipo === 'RFC') {
+                        if (!regexRFC.test(valor)) {
+                            error = 'El RFC no cumple con la estructura oficial (10 caracteres para homoclave básica o 13 completa).';
+                        }
+                    } else if (tipo === 'CVEPRE') {
+                        if (valor.length !== 23 && valor.length !== 24) {
+                            error = `La CVEPRE debe tener exactamente 23 o 24 caracteres (Actualmente tiene ${valor.length}).`;
+                        }
+                    }
+
+                    if (error) {
+                        e.preventDefault();
+                        errorMensajeRe.innerText = error;
+                        errorMensajeRe.classList.remove('hidden');
+                        inputDatoRe.focus();
+                        return false;
+                    }
+
+                    if (typeof showLoader === 'function') {
+                        showLoader();
+                    }
+                });
+            }
         });
     </script>
 @endpush

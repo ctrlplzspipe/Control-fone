@@ -37,8 +37,21 @@
                     </div>
                 </div>
 
+                {{-- Alerta de errores de validación --}}
+                @if ($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong><i class="fas fa-exclamation-triangle"></i> Atención:</strong>
+                        <ul class="mb-0 mt-1">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
                 <!-- Formulario -->
-                <form action="{{ route('consulta.general.resultados') }}" method="POST" class="space-y-6">
+                <form id="formConsulta" action="{{ route('consulta.general.resultados') }}" method="POST" class="space-y-6">
                     @csrf
 
                     <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-end">
@@ -63,8 +76,10 @@
                             <label for="dato" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
                                 Información a BUSCAR:
                             </label>
-                            <input type="text" id="dato" name="dato" maxlength="24" placeholder="CURP" required
+                            <input type="text" id="dato" name="dato" maxlength="18" placeholder="CURP (18 caracteres)"
+                                required autocomplete="off"
                                 class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-xl p-3 focus:ring-2 focus:ring-[#9B2242] focus:border-[#9B2242] outline-none transition-all uppercase placeholder-gray-400 font-mono" />
+                            <p id="errorMensaje" class="text-xs text-red-600 mt-1 font-semibold hidden"></p>
                         </div>
                     </div>
 
@@ -90,7 +105,7 @@
 
                     <!-- Botones de Acción -->
                     <div class="pt-4 border-t border-gray-100 flex items-center justify-end gap-3">
-                        <button type="reset"
+                        <button type="reset" id="btnReset"
                             class="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold text-xs transition-colors flex items-center gap-2 cursor-pointer">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
@@ -117,27 +132,95 @@
     </div>
 
     <script>
+
+        const regexCURP = /^[A-Z]{1}[AEIOU]{1}[A-Z]{2}[0-9]{2}(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])[HM]{1}(AS|BC|BS|CC|CL|CM|CS|CH|DF|DG|GT|GR|HG|JC|MC|MN|MS|NT|NL|OC|PL|QT|QR|SP|SL|SR|TC|TS|TL|VZ|YN|ZS|NE)[B-DF-HJ-NP-TV-Z]{3}[0-9A-Z]{1}[0-9]{1}$/;
+        const regexRFC = /^([A-ZÑ&]{3,4})([0-9]{2})(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])([A-Z0-9]{3})?$/;
+
+
         document.addEventListener('DOMContentLoaded', function () {
             const selectTipo = document.getElementById('optTipo');
             const inputDato = document.getElementById('dato');
+            const formConsulta = document.getElementById('formConsulta');
+            const errorMensaje = document.getElementById('errorMensaje');
+            const btnReset = document.getElementById('btnReset');
 
-            selectTipo.addEventListener('change', function () {
-                if (this.value === 'CURP') {
-                    inputDato.placeholder = 'CURP';
-                } else if (this.value === 'RFC') {
-                    inputDato.placeholder = 'RFC';
-                } else {
-                    inputDato.placeholder = 'CVEPRE SEIEM';
+            function actualizarConfiguracion() {
+                inputDato.value = '';
+                errorMensaje.classList.add('hidden');
+                errorMensaje.innerText = '';
+
+                const tipo = selectTipo.value;
+                if (tipo === 'CURP') {
+                    inputDato.placeholder = 'CURP (18 caracteres)';
+                    inputDato.maxLength = 18;
+                } else if (tipo === 'RFC') {
+                    inputDato.placeholder = 'RFC (10 a 13 caracteres)';
+                    inputDato.maxLength = 13;
+                } else if (tipo === 'CVEPRE') {
+                    inputDato.placeholder = 'CVEPRE (23 o 24 caracteres)';
+                    inputDato.maxLength = 24;
+                }
+            }
+
+            selectTipo.addEventListener('change', actualizarConfiguracion);
+
+            // Filtrar caracteres en tiempo real al escribir
+            inputDato.addEventListener('input', function () {
+                const tipo = selectTipo.value;
+                errorMensaje.classList.add('hidden');
+
+                if (tipo === 'CURP' || tipo === 'RFC') {
+                    // Solo letras A-Z y números 0-9
+                    this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                } else if (tipo === 'CVEPRE') {
+                    // Letras, números, puntos y espacios (formato CVEPRE)
+                    this.value = this.value.toUpperCase().replace(/[^A-Z0-9. ]/g, '');
                 }
             });
+
+            // Validación antes del envío
+            formConsulta.addEventListener('submit', function (e) {
+                const tipo = selectTipo.value;
+                const valorSinEspacios = inputDato.value.trim();
+
+                let error = '';
+
+                // 1. Rechazar el mismo carácter repetido (222222..., DDDDDD..., etc.)
+                //    Se revisa PRIMERO y para CUALQUIER tipo, sin importar longitud.
+                if (/^(.)\1+$/.test(valorSinEspacios)) {
+                    error = 'El valor ingresado no es válido: no puede ser el mismo carácter repetido.';
+                }
+                // 2. Validar la estructura real según el tipo seleccionado
+                else if (tipo === 'CURP') {
+                    if (!regexCURP.test(valorSinEspacios)) {
+                        error = 'La CURP ingresada no tiene una estructura válida (Ej. ABCD900101HMCXXA01).';
+                    }
+                } else if (tipo === 'RFC') {
+                    if (!regexRFC.test(valorSinEspacios)) {
+                        error = 'El RFC ingresado no tiene una estructura válida (Ej. XAXX010101000).';
+                    }
+                } else if (tipo === 'CVEPRE') {
+                    if (valorSinEspacios.length !== 23 && valorSinEspacios.length !== 24) {
+                        error = `La CVEPRE debe tener 23 o 24 caracteres (actualmente tiene ${valorSinEspacios.length}).`;
+                    }
+                }
+
+                if (error) {
+                    e.preventDefault();
+                    errorMensaje.innerText = error;
+                    errorMensaje.classList.remove('hidden');
+                    inputDato.focus();
+                    return false;
+                }
+
+                if (typeof showLoader === 'function') {
+                    showLoader();
+                }
+            });
+
+            btnReset.addEventListener('click', function () {
+                setTimeout(actualizarConfiguracion, 50);
+            });
         });
-
-        window.addEventListener('pageshow', function (event) {
-            var modalCarga = document.getElementById('loadingModal');
-            if (modalCarga) {
-                modalCarga.classList.add('hidden');
-            }
-        })
     </script>
-
 @endsection

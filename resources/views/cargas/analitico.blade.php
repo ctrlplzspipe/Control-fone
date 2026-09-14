@@ -46,7 +46,7 @@
                 </div>
 
                 <!-- Formulario -->
-                <form id="formCargaAnalitico" enctype="multipart/form-data" class="space-y-6">
+                <form id="formCargaAnalitico" enctype="multipart/form-data" class="space-y-6 no-loader">
                     @csrf
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

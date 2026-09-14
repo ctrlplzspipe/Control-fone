@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Carbon\Carbon;
 
 class ConsultaGeneralController extends Controller
@@ -55,23 +56,57 @@ class ConsultaGeneralController extends Controller
     }
 
     /**
-     * Muestra la pantalla de resultados DataTables.
+     * Muestra la pantalla de resultados DataTables con validación previa.
      */
     public function resultados(Request $request)
     {
         // Obtener la opción enviada sin importar si la vista envía 'optTipo' o 'campo'
         $tipoCampo = $request->input('optTipo') ?? $request->input('campo');
+        $datoInput = strtoupper(trim($request->input('dato', '')));
 
-        // Validar manualmente para evitar loops de redirección 302
+        // Validaciones más permisivas para evitar bloqueos falsos
         $validator = Validator::make([
             'optTipo' => $tipoCampo,
-            'dato' => $request->input('dato'),
+            'dato' => $datoInput,
         ], [
             'optTipo' => 'required|in:CURP,RFC,CVEPRE,CCT,NOMBRE',
-            'dato' => 'required|string|max:100',
+            'dato' => [
+                'required',
+                'string',
+                'min:3',
+                'max:100',
+                function ($attribute, $value, $fail) {
+                    if (preg_match('/^(.)\1+$/', $value)) {
+                        $fail('El término ingresado contiene solo caracteres repetidos. Por favor ingresa un dato válido.');
+                    }
+                },
+                // Validación de estructura real — mismos patrones que ya usas en el frontend
+                function ($attribute, $value, $fail) use ($tipoCampo) {
+                    $regexCURP = '/^[A-Z]{1}[AEIOU]{1}[A-Z]{2}[0-9]{2}(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])[HM]{1}(AS|BC|BS|CC|CL|CM|CS|CH|DF|DG|GT|GR|HG|JC|MC|MN|MS|NT|NL|OC|PL|QT|QR|SP|SL|SR|TC|TS|TL|VZ|YN|ZS|NE)[B-DF-HJ-NP-TV-Z]{3}[0-9A-Z]{1}[0-9]{1}$/';
+                    $regexRFC = '/^([A-ZÑ&]{3,4})([0-9]{2})(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])([A-Z0-9]{3})?$/';
+
+                    if ($tipoCampo === 'CURP' && !preg_match($regexCURP, $value)) {
+                        $fail('La CURP ingresada no tiene una estructura válida.');
+                    }
+                    if ($tipoCampo === 'RFC' && !preg_match($regexRFC, $value)) {
+                        $fail('El RFC ingresado no tiene una estructura válida.');
+                    }
+                },
+                Rule::when($tipoCampo === 'CURP', ['size:18']),
+                Rule::when($tipoCampo === 'RFC', ['min:10', 'max:13']),
+                Rule::when($tipoCampo === 'CVEPRE', ['min:20', 'max:25']),
+                Rule::when($tipoCampo === 'CCT', ['min:8', 'max:10']),
+            ],
+        ], [
+            'optTipo.required' => 'Debe seleccionar un tipo de parámetro para la búsqueda.',
+            'optTipo.in' => 'El tipo de parámetro seleccionado no es válido.',
+            'dato.required' => 'Por favor ingresa un dato para realizar la búsqueda.',
+            'dato.min' => 'El valor ingresado es demasiado corto (mínimo de caracteres no alcanzado).',
+            'dato.max' => 'El valor ingresado supera el límite permitido.',
+            'dato.size' => 'La CURP debe contener exactamente 18 caracteres.',
         ]);
 
-        // Si falla la validación o entran por GET sin datos, mandar limpia y directamente a la vista principal
+        // Si falla la validación, redirigir al formulario notificando el error
         if ($validator->fails()) {
             return redirect()->route('consulta.general')
                 ->withErrors($validator)
@@ -79,7 +114,7 @@ class ConsultaGeneralController extends Controller
         }
 
         $campo = $tipoCampo;
-        $dato = strtoupper(trim($request->input('dato')));
+        $dato = $datoInput;
 
         return view('consulta_general.resultados', compact('campo', 'dato'));
     }

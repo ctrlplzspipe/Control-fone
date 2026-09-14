@@ -1,9 +1,11 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-USE Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use DateTime;
 use ZipArchive;
 use Exception;
@@ -47,6 +49,12 @@ class AnaliticoController extends Controller
             'archivo' => ['required', 'file', 'mimes:zip', 'max:512000'],
         ]);
 
+        // Helper local para forzar UTF-8 en cualquier string que vaya al JSON.
+        // Detecta automáticamente si viene en ISO-8859-1 / Windows-1252 (típico de SEIEM).
+        $clean = function ($str) {
+            return mb_convert_encoding((string) $str, 'UTF-8', 'UTF-8, ISO-8859-1, Windows-1252');
+        };
+
         $qna = $request->input('quincena');
         $tabla = "analitico" . $qna;
         $lbl_error = '';
@@ -77,11 +85,11 @@ class AnaliticoController extends Controller
             $target_w = $tempPath . '/w_' . $extractedFileName;
             $errores = $tempPath . '/err_analitico_' . $qna . '.txt';
 
-            unlink($fullZipPath); // Borramos el ZIP subido
+            @unlink($fullZipPath); // Borramos el ZIP subido
         } else {
             return response()->json([
                 'success' => false,
-                'mensaje' => 'Error al descomprimir el archivo ZIP.',
+                'mensaje' => $clean('Error al descomprimir el archivo ZIP.'),
                 'lineas_error' => ''
             ], 422);
         }
@@ -89,7 +97,7 @@ class AnaliticoController extends Controller
         if (!file_exists($target_r)) {
             return response()->json([
                 'success' => false,
-                'mensaje' => "El archivo extraído ($extractedFileName) no existe.",
+                'mensaje' => $clean("El archivo extraído ({$extractedFileName}) no existe."),
                 'lineas_error' => ''
             ], 422);
         }
@@ -107,6 +115,11 @@ class AnaliticoController extends Controller
 
             $i = 0;
             $errCount = 0;
+
+            // Helper local para convertir campos de texto Latin-1 → UTF-8
+            $u = function ($str) {
+                return trim(mb_convert_encoding((string) $str, 'UTF-8', 'ISO-8859-1'));
+            };
 
             while (!feof($handle)) {
                 $buffer = fgets($handle, 4096);
@@ -141,42 +154,43 @@ class AnaliticoController extends Controller
                 $fecha_fin = $this->qnaToFechaFin($hasta);
 
                 $lineaData = [
-                    trim(substr($dat, 0, 13)),                                // RFC
-                    trim(str_replace(",", " ", substr($dat, 13, 30))),       // AP_PAT
-                    trim(str_replace(",", " ", substr($dat, 43, 30))),       // AP_MAT
-                    trim(str_replace(",", " ", substr($dat, 73, 30))),       // NOMBRE
-                    trim(str_replace(",", " ", substr($dat, 103, 18))),      // CURP
-                    $cpza,                                                    // CVEPRE / CPZA
-                    $desde,                                                   // DESDE
-                    $hasta,                                                   // HASTA
-                    trim(substr($dat, 156, 2)),                               // ST
-                    trim(substr($dat, 158, 2)),                               // MOT
-                    trim(substr($dat, 160, 6)),                               // ING_SEP
-                    trim(substr($dat, 166, 6)),                               // ING_SUB
-                    trim(substr($dat, 172, 6)),                               // FRI
-                    trim(substr($dat, 178, 1)),                               // NS
-                    trim(substr($dat, 179, 2)),                               // NP
-                    trim(substr($dat, 181, 10)),                              // CT
-                    trim(substr($dat, 191, 3)),                               // UD
-                    trim(substr($dat, 194, 3)),                               // MUN
-                    trim(substr($dat, 197, 2)),                               // NIVEL_MAX_EST
-                    trim(substr($dat, 199, 6)),                               // NO_SS
-                    trim(str_replace(",", " ", substr($dat, 205, 59))),      // DIRECCION
-                    trim(str_replace(",", " ", substr($dat, 264, 59))),      // COLONIA
-                    trim(str_replace(",", " ", substr($dat, 323, 30))),      // LOCALIDAD
-                    trim(str_replace(",", " ", substr($dat, 353, 13))),      // BASURA / EXTRA
-                    trim(substr($dat, 367, 2)),                               // SEP_1
-                    trim(substr($dat, 370, 2)),                               // SEP_2
-                    trim(substr($dat, 373, 2)),                               // SEP_3
-                    $fecha_ini->format("Y-m-d"),                              // FECHA_INI
-                    $fecha_fin->format("Y-m-d"),                              // FECHA_FIN
-                    substr($cpza, 0, 4),                                      // CODPAGOUNIDAD
-                    substr($cpza, 4, 2),                                      // SUBUNIDAD
-                    trim(substr($cpza, 6, 7)),                                // CATEGORIA
-                    substr($cpza, 13, 4),                                     // HORAS
-                    substr($cpza, 17, 6),                                     // CONSPLAZA
-                    substr($cpza, 2, 21),                                     // CVEPRE21
-                    "",                                                       // CPZA
+                    $u(substr($dat, 0, 13)),                                            // RFC
+                    $u(str_replace(",", " ", substr($dat, 13, 30))),                    // AP_PAT
+                    $u(str_replace(",", " ", substr($dat, 43, 30))),                    // AP_MAT
+                    $u(str_replace(",", " ", substr($dat, 73, 30))),                    // NOMBRE
+                    $u(str_replace(",", " ", substr($dat, 103, 18))),                   // CURP
+                    $u($cpza),                                                          // CVEPRE / CPZA
+                    $u($desde),                                                         // DESDE
+                    $u($hasta),                                                         // HASTA
+                    $u(substr($dat, 156, 2)),                                           // ST
+                    $u(substr($dat, 158, 2)),                                           // MOT
+                    $u(substr($dat, 160, 6)),                                           // ING_SEP
+                    $u(substr($dat, 166, 6)),                                           // ING_SUB
+                    $u(substr($dat, 172, 6)),                                           // FRI
+                    $u(substr($dat, 178, 1)),                                           // NS
+                    $u(substr($dat, 179, 2)),                                           // NP
+                    $u(substr($dat, 181, 10)),                                          // CT
+                    $u(substr($dat, 191, 3)),                                           // UD
+                    $u(substr($dat, 194, 3)),                                           // MUN
+                    $u(substr($dat, 197, 2)),                                           // NIVEL_MAX_EST
+                    $u(substr($dat, 199, 6)),                                           // NO_SS
+                    $u(str_replace(",", " ", substr($dat, 205, 59))),                   // DIRECCION
+                    $u(str_replace(",", " ", substr($dat, 264, 59))),                   // COLONIA
+                    $u(str_replace(",", " ", substr($dat, 323, 30))),                   // LOCALIDAD
+                    $u(str_replace(",", " ", substr($dat, 353, 13))),                   // BASURA / EXTRA
+                    "",                                                                 // NUM_EXT (no viene en el archivo)
+                    $u(substr($dat, 367, 2)),                                           // SEP_1
+                    $u(substr($dat, 370, 2)),                                           // SEP_2
+                    $u(substr($dat, 373, 2)),                                           // SEP_3
+                    $fecha_ini->format("Y-m-d"),                                        // FECHA_INI
+                    $fecha_fin->format("Y-m-d"),                                        // FECHA_FIN
+                    $u(substr($cpza, 0, 4)),                                            // CODPAGOUNIDAD
+                    $u(substr($cpza, 4, 2)),                                            // SUBUNIDAD
+                    $u(substr($cpza, 6, 7)),                                            // CATEGORIA
+                    $u(substr($cpza, 13, 4)),                                           // HORAS
+                    $u(substr($cpza, 17, 6)),                                           // CONSPLAZA
+                    $u(substr($cpza, 2, 21)),                                           // CVEPRE21
+                    "",                                                                 // CPZA
                 ];
 
                 fwrite($file, implode(",", $lineaData) . PHP_EOL);
@@ -186,21 +200,21 @@ class AnaliticoController extends Controller
             fclose($file);
             fclose($fileErr);
 
-            // 3. Carga Masiva a MySQL via LOAD DATA LOCAL INFILE (o Inserts por Lotes)
+            // 3. Carga Masiva a MySQL via LOAD DATA LOCAL INFILE
             $rutaFormatted = str_replace('\\', '/', $target_w);
 
             $sql_inserta = "LOAD DATA LOCAL INFILE '" . $rutaFormatted . "' INTO TABLE {$tabla} "
-                . "CHARACTER SET latin1 "
+                . "CHARACTER SET utf8mb3 "
                 . "FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n' "
                 . "(RFC, AP_PAT, AP_MAT, NOMBRE, CURP, CVEPRE, DESDE, HASTA, ST, MOT, "
                 . "ING_SEP, ING_SUB, FRI, NS, NP, CT, UD, MUN, NIVEL_MAX_EST, NO_SS, "
-                . "DIRECCION, COLONIA, LOCALIDAD, BASURA, SEP_1, SEP_2, SEP_3, FECHA_INI, FECHA_FIN, CODPAGOUNIDAD, "
-                . "SUBUNIDAD, CATEGORIA, HORAS, CONSPLAZA, CVEPRE21, CPZA)";
+                . "DIRECCION, COLONIA, LOCALIDAD, BASURA, NUM_EXT, SEP_1, SEP_2, SEP_3, "
+                . "FECHA_INI, FECHA_FIN, CODPAGOUNIDAD, SUBUNIDAD, CATEGORIA, HORAS, CONSPLAZA, CVEPRE21, CPZA)";
 
             try {
                 DB::connection()->getPdo()->exec($sql_inserta);
             } catch (Exception $e) {
-                // Fallback en caso de que LOAD DATA no esté permitido en la conf de PDO/Server:
+                // Fallback si LOAD DATA no está permitido
                 $this->insertarPorLotes($target_w, $tabla);
             }
 
@@ -226,8 +240,8 @@ class AnaliticoController extends Controller
 
             return response()->json([
                 'success' => true,
-                'mensaje' => "Proceso de Carga completado para la quincena {$qna}.",
-                'lineas_error' => $lineas_error,
+                'mensaje' => $clean("Proceso de Carga completado para la quincena {$qna}."),
+                'lineas_error' => $clean($lineas_error),
                 'url_error' => $urlErrorDownload
             ]);
 
@@ -235,9 +249,15 @@ class AnaliticoController extends Controller
             @unlink($target_r);
             @unlink($target_w);
 
+            // Registramos el error real en el log para no exponerlo en el JSON
+            Log::error('Error en AnaliticoController@store: ' . $ex->getMessage(), [
+                'quincena' => $qna,
+                'trace' => $ex->getTraceAsString(),
+            ]);
+
             return response()->json([
                 'success' => false,
-                'mensaje' => 'Error durante el procesamiento: ' . $ex->getMessage(),
+                'mensaje' => $clean('Error durante el procesamiento: ' . $ex->getMessage()),
                 'lineas_error' => ''
             ], 500);
         }
@@ -329,6 +349,7 @@ class AnaliticoController extends Controller
             'COLONIA',
             'LOCALIDAD',
             'BASURA',
+            'NUM_EXT',
             'SEP_1',
             'SEP_2',
             'SEP_3',
