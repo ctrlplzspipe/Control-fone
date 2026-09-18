@@ -338,8 +338,8 @@
             const estilos = {
 
                 exito: {
-                    bg: '#059669',
-                    borde: '#047857',
+                    bg: '#7B1B34',
+                    borde: '#B8975A',
                     icono: '✓'
                 },
 

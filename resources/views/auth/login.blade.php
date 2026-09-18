@@ -123,11 +123,7 @@
             </div>
 
             <!-- Información Inferior del Formulario -->
-            <div class="mt-8 pt-4 border-t border-gray-100 text-center sm:text-left">
-                <p class="text-[11px] text-gray-400 font-medium">
-                    Departamento de Registro y Archivo SEIEM
-                </p>
-            </div>
+            
 
         </section>
 

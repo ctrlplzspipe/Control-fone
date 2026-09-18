@@ -26,15 +26,6 @@
                     </p>
                 </div>
 
-                <!-- Acceso Directo / Info rápida -->
-                <div class="bg-gray-50 border border-gray-200/80 rounded-xl p-4 w-full sm:w-auto min-w-[220px]">
-                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Módulo Actual</p>
-                    <p class="text-sm font-semibold text-gray-700 mt-0.5">Gestión de Cargas & Consultas</p>
-                    <div class="mt-2 pt-2 border-t border-gray-200 flex justify-between text-xs text-gray-500">
-                        <span>SEIEM</span>
-                        <span class="font-bold text-[#B8975A]">EdoMéx</span>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -49,7 +40,8 @@
                 Módulos del Sistema
             </h3>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Se cambia lg:grid-cols-3 a lg:grid-cols-4 para acomodar 4 módulos -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
                 {{-- MÓDULOS DE ADMINISTRADOR / ROL 1 --}}
                 @if(session('SesUsr') == 1)
@@ -84,7 +76,38 @@
                         </div>
                     </a>
 
-                    <!-- Card Auditoría / Análisis -->
+                    <!-- Card 2: Carga FONE (MDP) -->
+                    <a href="{{ route('carga.mdp.index') }}"
+                        class="group bg-white rounded-xl p-6 border border-gray-200/80 shadow-sm hover:shadow-md hover:border-[#9B2242] transition-all duration-200 flex flex-col justify-between">
+                        <div>
+                            <div
+                                class="w-12 h-12 rounded-lg bg-[#9B2242]/10 text-[#9B2242] group-hover:bg-[#9B2242] group-hover:text-white transition-colors duration-200 flex items-center justify-center mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                            </div>
+                            <h4 class="text-base font-bold text-gray-800 group-hover:text-[#9B2242] transition-colors">
+                                Carga FONE (MDP)
+                            </h4>
+                            <p class="text-xs text-gray-500 mt-2 leading-relaxed">
+                                Importación y procesamiento de movimientos de plazas FONE mediante archivos ZIP.
+                            </p>
+                        </div>
+                        <div
+                            class="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between text-xs font-semibold text-[#9B2242]">
+                            <span>Acceder al módulo</span>
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                class="h-4 w-4 transform group-hover:translate-x-1 transition-transform" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </div>
+                    </a>
+
+                    <!-- Card 3: Auditoría / Análisis -->
                     <a href="{{ route('auditoria.index') }}"
                         class="group bg-white rounded-xl p-6 border border-gray-200/80 shadow-sm hover:shadow-md hover:border-[#9B2242] transition-all duration-200 flex flex-col justify-between">
                         <div>
@@ -118,7 +141,7 @@
 
                 {{-- MÓDULOS DE CONSULTA / AMBOS ROLES (1 y 2) --}}
                 @if(in_array(session('SesUsr'), [1, 2]))
-                    <!-- Card: Consulta General -->
+                    <!-- Card 4: Consulta General -->
                     <a href="{{ route('consulta.general') }}"
                         class="group bg-white rounded-xl p-6 border border-gray-200/80 shadow-sm hover:shadow-md hover:border-[#B8975A] transition-all duration-200 flex flex-col justify-between">
                         <div>
@@ -152,6 +175,7 @@
 
             </div>
         </div>
+    </div>
 
     </div>
 @endsection

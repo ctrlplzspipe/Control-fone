@@ -6,7 +6,7 @@ use App\Http\Controllers\AnalizadorController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ConsultaGeneralController;
 use App\Http\Controllers\AnaliticoController;
-
+use App\Http\Controllers\CargaMdpController;
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 /*
@@ -44,5 +44,9 @@ Route::middleware(['valid.user'])->group(function () {
     })->name('auditoria.index');
 
     Route::post('/analizar-plantilla', [AnalizadorController::class, 'procesar'])->name('auditoria.procesar');
+
+    //Módulo: Carga de MDP
+    Route::get('/carga-mdp', [CargaMdpController::class, 'index'])->name('carga.mdp.index');
+    Route::post('/carga-mdp', [CargaMdpController::class, 'store'])->name('carga.mdp.store');
 
 });
