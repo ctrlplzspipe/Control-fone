@@ -7,7 +7,6 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ConsultaGeneralController;
 use App\Http\Controllers\AnaliticoController;
 use App\Http\Controllers\CargaMdpController;
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 /*
 |--------------------------------------------------------------------------
@@ -27,6 +26,7 @@ Route::middleware(['valid.user'])->group(function () {
 
     // Dashboard / Mainframe
     Route::get('/', [DashboardController::class, 'index'])->name('mainframe');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Módulo: Analítico SEIEM (Cargas)
     Route::get('/analitico-seiem', [AnaliticoController::class, 'index'])->name('analitico.index');
@@ -45,7 +45,7 @@ Route::middleware(['valid.user'])->group(function () {
 
     Route::post('/analizar-plantilla', [AnalizadorController::class, 'procesar'])->name('auditoria.procesar');
 
-    //Módulo: Carga de MDP
+    // Módulo: Carga de MDP
     Route::get('/carga-mdp', [CargaMdpController::class, 'index'])->name('carga.mdp.index');
     Route::post('/carga-mdp', [CargaMdpController::class, 'store'])->name('carga.mdp.store');
 

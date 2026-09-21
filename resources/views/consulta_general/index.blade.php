@@ -76,7 +76,7 @@
                             <label for="dato" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
                                 Información a BUSCAR:
                             </label>
-                            <input type="text" id="dato" name="dato" maxlength="18" placeholder="CURP (18 caracteres)"
+                            <input type="text" id="dato" name="dato" maxlength="18" placeholder="CURP (mín. 4 caracteres)"
                                 required autocomplete="off"
                                 class="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-xl p-3 focus:ring-2 focus:ring-[#9B2242] focus:border-[#9B2242] outline-none transition-all uppercase placeholder-gray-400 font-mono" />
                             <p id="errorMensaje" class="text-xs text-red-600 mt-1 font-semibold hidden"></p>
@@ -133,9 +133,7 @@
 
     <script>
 
-        const regexCURP = /^[A-Z]{1}[AEIOU]{1}[A-Z]{2}[0-9]{2}(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])[HM]{1}(AS|BC|BS|CC|CL|CM|CS|CH|DF|DG|GT|GR|HG|JC|MC|MN|MS|NT|NL|OC|PL|QT|QR|SP|SL|SR|TC|TS|TL|VZ|YN|ZS|NE)[B-DF-HJ-NP-TV-Z]{3}[0-9A-Z]{1}[0-9]{1}$/;
-        const regexRFC = /^([A-ZÑ&]{3,4})([0-9]{2})(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])([A-Z0-9]{3})?$/;
-
+        const MIN_CARACTERES = 4;
 
         document.addEventListener('DOMContentLoaded', function () {
             const selectTipo = document.getElementById('optTipo');
@@ -151,14 +149,14 @@
 
                 const tipo = selectTipo.value;
                 if (tipo === 'CURP') {
-                    inputDato.placeholder = 'CURP (18 caracteres)';
+                    inputDato.placeholder = 'CURP (mín. 4 caract., completo 18)';
                     inputDato.maxLength = 18;
                 } else if (tipo === 'RFC') {
-                    inputDato.placeholder = 'RFC (10 a 13 caracteres)';
+                    inputDato.placeholder = 'RFC (mín. 4 caract., completo 10 a 13)';
                     inputDato.maxLength = 13;
                 } else if (tipo === 'CVEPRE') {
-                    inputDato.placeholder = 'CVEPRE (23 o 24 caracteres)';
-                    inputDato.maxLength = 24;
+                    inputDato.placeholder = 'CVEPRE (mín. 4 caract., completo 23 o 24)';
+                    inputDato.maxLength = 25;
                 }
             }
 
@@ -179,30 +177,20 @@
             });
 
             // Validación antes del envío
+            // (relajada: permite búsqueda parcial desde 4 caracteres,
+            // igual que el backend y la re-búsqueda de resultados)
             formConsulta.addEventListener('submit', function (e) {
-                const tipo = selectTipo.value;
                 const valorSinEspacios = inputDato.value.trim();
 
                 let error = '';
 
                 // 1. Rechazar el mismo carácter repetido (222222..., DDDDDD..., etc.)
-                //    Se revisa PRIMERO y para CUALQUIER tipo, sin importar longitud.
                 if (/^(.)\1+$/.test(valorSinEspacios)) {
                     error = 'El valor ingresado no es válido: no puede ser el mismo carácter repetido.';
                 }
-                // 2. Validar la estructura real según el tipo seleccionado
-                else if (tipo === 'CURP') {
-                    if (!regexCURP.test(valorSinEspacios)) {
-                        error = 'La CURP ingresada no tiene una estructura válida (Ej. ABCD900101HMCXXA01).';
-                    }
-                } else if (tipo === 'RFC') {
-                    if (!regexRFC.test(valorSinEspacios)) {
-                        error = 'El RFC ingresado no tiene una estructura válida (Ej. XAXX010101000).';
-                    }
-                } else if (tipo === 'CVEPRE') {
-                    if (valorSinEspacios.length !== 23 && valorSinEspacios.length !== 24) {
-                        error = `La CVEPRE debe tener 23 o 24 caracteres (actualmente tiene ${valorSinEspacios.length}).`;
-                    }
+                // 2. Mínimo de caracteres para permitir búsqueda parcial
+                else if (valorSinEspacios.length < MIN_CARACTERES) {
+                    error = `Ingresa al menos ${MIN_CARACTERES} caracteres para buscar.`;
                 }
 
                 if (error) {

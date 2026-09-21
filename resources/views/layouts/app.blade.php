@@ -54,13 +54,13 @@
         <header class="bg-white/95 backdrop-blur border-b border-gray-200 shadow-sm sticky top-0 z-40">
 
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3
-                    grid grid-cols-3 items-center gap-4">
+                            grid grid-cols-3 items-center gap-4">
 
                 <!-- Lado Izquierdo: Escudo Gobierno -->
                 <div class="flex items-center justify-start">
 
                     <img src="{{ asset('images/escudo-2.png') }}" alt="Gobierno del Estado de México" class="h-14 sm:h-20 md:h-24 lg:h-28
-                            w-auto object-contain shrink-0 max-w-full transition-all">
+                                    w-auto object-contain shrink-0 max-w-full transition-all">
 
                 </div>
 
@@ -69,16 +69,16 @@
                 <div class="text-center">
 
                     <h1 class="text-base sm:text-xl md:text-2xl
-                            font-black text-gray-800
-                            tracking-tight leading-none">
+                                    font-black text-gray-800
+                                    tracking-tight leading-none">
 
                         Control de Plazas
 
                     </h1>
 
                     <p class="text-[11px] sm:text-xs md:text-sm
-                            text-gray-500 font-bold
-                            tracking-wide mt-1 leading-tight">
+                                    text-gray-500 font-bold
+                                    tracking-wide mt-1 leading-tight">
 
                         Departamento de Registro y Archivo
 
@@ -91,7 +91,7 @@
                 <div class="flex items-center justify-end">
 
                     <img src="{{ asset('images/seiem-logo.png') }}" alt="Estado de México" class="h-12 sm:h-16 md:h-20 lg:h-24
-                            w-auto object-contain shrink-0 max-w-full transition-all">
+                                    w-auto object-contain shrink-0 max-w-full transition-all">
 
                 </div>
 
@@ -113,19 +113,19 @@
         <div class="bg-slate-100/80 border-b border-gray-200/80 shadow-inner">
 
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8
-                    py-2 flex items-center justify-between text-xs">
+                            py-2 flex items-center justify-between text-xs">
 
                 <div class="flex items-center gap-2">
 
                     <span class="relative flex h-2 w-2">
 
                         <span class="animate-ping absolute inline-flex
-                                h-full w-full rounded-full
-                                bg-emerald-400 opacity-75">
+                                        h-full w-full rounded-full
+                                        bg-emerald-400 opacity-75">
                         </span>
 
                         <span class="relative inline-flex rounded-full
-                                h-2 w-2 bg-emerald-500">
+                                        h-2 w-2 bg-emerald-500">
                         </span>
 
                     </span>
@@ -144,10 +144,10 @@
                 {{-- Añadimos onclick="confirmarCerrarSesion(event)" --}}
 
                 <a href="{{ url('/logout') }}" onclick="confirmarCerrarSesion(event)" class="inline-flex items-center gap-1.5
-                        text-[#9B2242]
-                        hover:text-[#7B1B34]
-                        font-bold hover:underline
-                        transition-colors">
+                                text-[#9B2242]
+                                hover:text-[#7B1B34]
+                                font-bold hover:underline
+                                transition-colors">
 
                     <span>
                         Cerrar Sesión
@@ -197,17 +197,17 @@
             <div class="mb-5">
 
                 <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-2
-                        px-3.5 py-2 rounded-xl
-                        bg-white border border-gray-200
-                        text-gray-700
-                        hover:text-[#9B2242]
-                        hover:border-[#9B2242]/30
-                        shadow-xs text-xs font-bold
-                        transition-all group">
+                                px-3.5 py-2 rounded-xl
+                                bg-white border border-gray-200
+                                text-gray-700
+                                hover:text-[#9B2242]
+                                hover:border-[#9B2242]/30
+                                shadow-xs text-xs font-bold
+                                transition-all group">
 
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400
-                            group-hover:text-[#9B2242]
-                            transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    group-hover:text-[#9B2242]
+                                    transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -545,16 +545,14 @@
 
         // Ocultar modal cuando el usuario
         // regresa en el navegador (Bfcache)
-
-        window.addEventListener(
-            'pageshow',
-            function (event) {
-
-                hideLoader();
-
+        // Ocultar modal cuando el usuario regresa en el navegador (Bfcache)
+        window.addEventListener('pageshow', function (event) {
+            // si la página se recuperó de la memoria caché del navegador (Atrás/Adelante)
+            if (event.persisted || (typeof window.performance !== 'undefined' && window.performance.navigation.type === 2)) {
+                // Forzar una recarga limpia con el servidor
+                window.location.reload();
             }
-        );
-
+        });
     </script>
 
 

@@ -115,15 +115,17 @@
             <form id="formReBusqueda" action="{{ route('consulta.general.resultados') }}" method="POST">
                 @csrf
                 <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-start">
-                    
+
                     <!-- Selector de Campo -->
                     <div class="sm:col-span-4">
-                        <label for="optTipoRe" class="block text-[11px] font-bold text-gray-600 uppercase mb-1">Buscar por:</label>
+                        <label for="optTipoRe" class="block text-[11px] font-bold text-gray-600 uppercase mb-1">Buscar
+                            por:</label>
                         <select name="campo" id="optTipoRe" required
                             class="w-full px-3 py-2 text-xs rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#9B2242] focus:border-transparent outline-none bg-white font-medium cursor-pointer">
                             <option value="CURP" {{ $campo === 'CURP' ? 'selected' : '' }}>CURP</option>
                             <option value="RFC" {{ $campo === 'RFC' ? 'selected' : '' }}>RFC</option>
-                            <option value="CVEPRE" {{ $campo === 'CVEPRE' ? 'selected' : '' }}>Clave Presupuestal (CVEPRE)</option>
+                            <option value="CVEPRE" {{ $campo === 'CVEPRE' ? 'selected' : '' }}>Clave Presupuestal (CVEPRE)
+                            </option>
                         </select>
                     </div>
 
@@ -297,10 +299,11 @@
             });
 
             // ==========================================
-            // LÓGICA Y VALIDACIÓN ESTRICTA DE LA RE-BÚSQUEDA
+            // LÓGICA Y VALIDACIÓN DE LA RE-BÚSQUEDA
+            // (relajada para permitir búsqueda parcial,
+            // mínimo 4 caracteres, igual que el backend)
             // ==========================================
-            const regexCURP = /^[A-Z]{1}[AEIOU]{1}[A-Z]{2}[0-9]{2}(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])[HM]{1}(AS|BC|BS|CC|CL|CM|CS|CH|DF|DG|GT|GR|HG|JC|MC|MN|MS|NT|NL|OC|PL|QT|QR|SP|SL|SR|TC|TS|TL|VZ|YN|ZS|NE)[B-DF-HJ-NP-TV-Z]{3}[0-9A-Z]{1}[0-9]{1}$/;
-            const regexRFC  = /^([A-ZÑ&]{3,4})([0-9]{2})(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])([A-Z0-9]{3})?$/;
+            const MIN_CARACTERES = 4;
 
             const selectTipoRe = document.getElementById('optTipoRe');
             const inputDatoRe = document.getElementById('datoRe');
@@ -313,14 +316,14 @@
 
                 const tipo = selectTipoRe.value;
                 if (tipo === 'CURP') {
-                    inputDatoRe.placeholder = 'Ej. ABCD900101HMCXXA01 (18 caract.)';
+                    inputDatoRe.placeholder = 'Ej. ABCD90 (mín. 4 caract., completo 18)';
                     inputDatoRe.maxLength = 18;
                 } else if (tipo === 'RFC') {
-                    inputDatoRe.placeholder = 'Ej. ABCD900101XXX (10 a 13 caract.)';
+                    inputDatoRe.placeholder = 'Ej. ABCD (mín. 4 caract., completo 10 a 13)';
                     inputDatoRe.maxLength = 13;
                 } else if (tipo === 'CVEPRE') {
-                    inputDatoRe.placeholder = 'CVEPRE (23 o 24 caracteres)';
-                    inputDatoRe.maxLength = 24;
+                    inputDatoRe.placeholder = 'CVEPRE (mín. 4 caract., completo 23 o 24)';
+                    inputDatoRe.maxLength = 25;
                 }
             }
 
@@ -344,7 +347,6 @@
                 });
 
                 formReBusqueda.addEventListener('submit', function (e) {
-                    const tipo = selectTipoRe.value;
                     const valor = inputDatoRe.value.trim();
 
                     let error = '';
@@ -352,20 +354,10 @@
                     // 1. Evitar cadenas repetidas del mismo carácter (Ej: 22222... o DDDDD...)
                     if (/^(.)\1+$/.test(valor)) {
                         error = 'El valor ingresado no es válido (no puede ser el mismo carácter repetido).';
-                    } 
-                    // 2. Validación por Expresión Regular oficial según la opción seleccionada
-                    else if (tipo === 'CURP') {
-                        if (!regexCURP.test(valor)) {
-                            error = 'La CURP ingresada no cumple con la estructura oficial de 18 caracteres (Ej. ABCD900101HMCXXA01).';
-                        }
-                    } else if (tipo === 'RFC') {
-                        if (!regexRFC.test(valor)) {
-                            error = 'El RFC no cumple con la estructura oficial (10 caracteres para homoclave básica o 13 completa).';
-                        }
-                    } else if (tipo === 'CVEPRE') {
-                        if (valor.length !== 23 && valor.length !== 24) {
-                            error = `La CVEPRE debe tener exactamente 23 o 24 caracteres (Actualmente tiene ${valor.length}).`;
-                        }
+                    }
+                    // 2. Mínimo de caracteres para permitir búsqueda parcial
+                    else if (valor.length < MIN_CARACTERES) {
+                        error = `Ingresa al menos ${MIN_CARACTERES} caracteres para buscar.`;
                     }
 
                     if (error) {

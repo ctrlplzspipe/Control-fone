@@ -64,7 +64,8 @@ class ConsultaGeneralController extends Controller
         $tipoCampo = $request->input('optTipo') ?? $request->input('campo');
         $datoInput = strtoupper(trim($request->input('dato', '')));
 
-        // Validaciones más permisivas para evitar bloqueos falsos
+        // Validaciones permisivas: se permite búsqueda parcial (mínimo 4 caracteres)
+        // en vez de exigir el CURP/RFC/CVEPRE completo.
         $validator = Validator::make([
             'optTipo' => $tipoCampo,
             'dato' => $datoInput,
@@ -73,37 +74,26 @@ class ConsultaGeneralController extends Controller
             'dato' => [
                 'required',
                 'string',
-                'min:3',
+                'min:4',
                 'max:100',
                 function ($attribute, $value, $fail) {
                     if (preg_match('/^(.)\1+$/', $value)) {
                         $fail('El término ingresado contiene solo caracteres repetidos. Por favor ingresa un dato válido.');
                     }
                 },
-                // Validación de estructura real — mismos patrones que ya usas en el frontend
-                function ($attribute, $value, $fail) use ($tipoCampo) {
-                    $regexCURP = '/^[A-Z]{1}[AEIOU]{1}[A-Z]{2}[0-9]{2}(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])[HM]{1}(AS|BC|BS|CC|CL|CM|CS|CH|DF|DG|GT|GR|HG|JC|MC|MN|MS|NT|NL|OC|PL|QT|QR|SP|SL|SR|TC|TS|TL|VZ|YN|ZS|NE)[B-DF-HJ-NP-TV-Z]{3}[0-9A-Z]{1}[0-9]{1}$/';
-                    $regexRFC = '/^([A-ZÑ&]{3,4})([0-9]{2})(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])([A-Z0-9]{3})?$/';
-
-                    if ($tipoCampo === 'CURP' && !preg_match($regexCURP, $value)) {
-                        $fail('La CURP ingresada no tiene una estructura válida.');
-                    }
-                    if ($tipoCampo === 'RFC' && !preg_match($regexRFC, $value)) {
-                        $fail('El RFC ingresado no tiene una estructura válida.');
-                    }
-                },
-                Rule::when($tipoCampo === 'CURP', ['size:18']),
-                Rule::when($tipoCampo === 'RFC', ['min:10', 'max:13']),
-                Rule::when($tipoCampo === 'CVEPRE', ['min:20', 'max:25']),
-                Rule::when($tipoCampo === 'CCT', ['min:8', 'max:10']),
+                // Límites máximos por tipo de dato (ya no se exige la longitud
+                // completa ni la estructura exacta, para permitir búsqueda parcial)
+                Rule::when($tipoCampo === 'CURP', ['max:18']),
+                Rule::when($tipoCampo === 'RFC', ['max:13']),
+                Rule::when($tipoCampo === 'CVEPRE', ['max:25']),
+                Rule::when($tipoCampo === 'CCT', ['max:10']),
             ],
         ], [
             'optTipo.required' => 'Debe seleccionar un tipo de parámetro para la búsqueda.',
             'optTipo.in' => 'El tipo de parámetro seleccionado no es válido.',
             'dato.required' => 'Por favor ingresa un dato para realizar la búsqueda.',
-            'dato.min' => 'El valor ingresado es demasiado corto (mínimo de caracteres no alcanzado).',
+            'dato.min' => 'Ingresa al menos 4 caracteres para realizar la búsqueda.',
             'dato.max' => 'El valor ingresado supera el límite permitido.',
-            'dato.size' => 'La CURP debe contener exactamente 18 caracteres.',
         ]);
 
         // Si falla la validación, redirigir al formulario notificando el error
