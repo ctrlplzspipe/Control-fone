@@ -178,8 +178,12 @@
 
             // Validación antes del envío
             // (relajada: permite búsqueda parcial desde 4 caracteres,
-            // igual que el backend y la re-búsqueda de resultados)
+            // pero respetando cómo deben iniciar CURP/RFC)
+            const regexPrefijoCURP = /^[A-Z][AEIOU][A-Z]{2}/;
+            const regexPrefijoRFC = /^[A-ZÑ&]{3,4}/;
+
             formConsulta.addEventListener('submit', function (e) {
+                const tipo = selectTipo.value;
                 const valorSinEspacios = inputDato.value.trim();
 
                 let error = '';
@@ -191,6 +195,12 @@
                 // 2. Mínimo de caracteres para permitir búsqueda parcial
                 else if (valorSinEspacios.length < MIN_CARACTERES) {
                     error = `Ingresa al menos ${MIN_CARACTERES} caracteres para buscar.`;
+                }
+                // 3. Estructura del prefijo (cómo normalmente inicia una CURP/RFC real)
+                else if (tipo === 'CURP' && !regexPrefijoCURP.test(valorSinEspacios)) {
+                    error = 'La CURP debe iniciar con letra, vocal y dos letras (Ej. ABCD...).';
+                } else if (tipo === 'RFC' && !regexPrefijoRFC.test(valorSinEspacios)) {
+                    error = 'El RFC debe iniciar con 3 o 4 letras (Ej. ABC... o ABCD...).';
                 }
 
                 if (error) {

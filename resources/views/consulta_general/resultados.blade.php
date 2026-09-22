@@ -347,7 +347,10 @@
                 });
 
                 formReBusqueda.addEventListener('submit', function (e) {
+                    const tipo = selectTipoRe.value;
                     const valor = inputDatoRe.value.trim();
+                    const regexPrefijoCURP = /^[A-Z][AEIOU][A-Z]{2}/;
+                    const regexPrefijoRFC = /^[A-ZÑ&]{3,4}/;
 
                     let error = '';
 
@@ -358,6 +361,12 @@
                     // 2. Mínimo de caracteres para permitir búsqueda parcial
                     else if (valor.length < MIN_CARACTERES) {
                         error = `Ingresa al menos ${MIN_CARACTERES} caracteres para buscar.`;
+                    }
+                    // 3. Estructura del prefijo (cómo normalmente inicia una CURP/RFC real)
+                    else if (tipo === 'CURP' && !regexPrefijoCURP.test(valor)) {
+                        error = 'La CURP debe iniciar con letra, vocal y dos letras (Ej. ABCD...).';
+                    } else if (tipo === 'RFC' && !regexPrefijoRFC.test(valor)) {
+                        error = 'El RFC debe iniciar con 3 o 4 letras (Ej. ABC... o ABCD...).';
                     }
 
                     if (error) {

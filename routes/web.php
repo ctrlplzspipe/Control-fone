@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ConsultaGeneralController;
 use App\Http\Controllers\AnaliticoController;
 use App\Http\Controllers\CargaMdpController;
+use App\Http\Controllers\CargaMapController;
 
 /*
 |--------------------------------------------------------------------------
@@ -49,4 +50,7 @@ Route::middleware(['valid.user'])->group(function () {
     Route::get('/carga-mdp', [CargaMdpController::class, 'index'])->name('carga.mdp.index');
     Route::post('/carga-mdp', [CargaMdpController::class, 'store'])->name('carga.mdp.store');
 
+    // Módulo: Carga de MAP
+    Route::get('/carga-map', [CargaMapController::class, 'index'])->name('carga.map.index');
+    Route::post('/carga-map', [CargaMapController::class, 'store'])->name('carga.map.store');
 });
