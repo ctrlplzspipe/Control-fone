@@ -107,7 +107,38 @@
                         </div>
                     </a>
 
-                    <!-- Card 3: Auditoría / Análisis -->
+                    <!-- Card 3: Carga MAP -->
+                    <a href="{{ route('carga.map.index') }}"
+                        class="group bg-white rounded-xl p-6 border border-gray-200/80 shadow-sm hover:shadow-md hover:border-[#9B2242] transition-all duration-200 flex flex-col justify-between">
+                        <div>
+                            <div
+                                class="w-12 h-12 rounded-lg bg-[#9B2242]/10 text-[#9B2242] group-hover:bg-[#9B2242] group-hover:text-white transition-colors duration-200 flex items-center justify-center mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <h4 class="text-base font-bold text-gray-800 group-hover:text-[#9B2242] transition-colors">
+                                Carga MAP
+                            </h4>
+                            <p class="text-xs text-gray-500 mt-2 leading-relaxed">
+                                Carga del estatus de plazas conciliadas en FONE mediante archivos ZIP.
+                            </p>
+                        </div>
+                        <div
+                            class="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between text-xs font-semibold text-[#9B2242]">
+                            <span>Acceder al módulo</span>
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                class="h-4 w-4 transform group-hover:translate-x-1 transition-transform" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
+                        </div>
+                    </a>
+
+                    <!-- Card 4: Auditoría / Análisis -->
                     <a href="{{ route('auditoria.index') }}"
                         class="group bg-white rounded-xl p-6 border border-gray-200/80 shadow-sm hover:shadow-md hover:border-[#9B2242] transition-all duration-200 flex flex-col justify-between">
                         <div>
@@ -141,7 +172,7 @@
 
                 {{-- MÓDULOS DE CONSULTA / AMBOS ROLES (1 y 2) --}}
                 @if(in_array(session('SesUsr'), [1, 2]))
-                    <!-- Card 4: Consulta General -->
+                    <!-- Card 5: Consulta General -->
                     <a href="{{ route('consulta.general') }}"
                         class="group bg-white rounded-xl p-6 border border-gray-200/80 shadow-sm hover:shadow-md hover:border-[#B8975A] transition-all duration-200 flex flex-col justify-between">
                         <div>

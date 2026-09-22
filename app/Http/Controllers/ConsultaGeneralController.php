@@ -81,6 +81,17 @@ class ConsultaGeneralController extends Controller
                         $fail('El término ingresado contiene solo caracteres repetidos. Por favor ingresa un dato válido.');
                     }
                 },
+                // Estructura del PREFIJO (no se exige la CURP/RFC completa,
+                // solo que arranque como realmente arrancan: letras y, en el
+                // caso de CURP, con vocal en la segunda posición).
+                function ($attribute, $value, $fail) use ($tipoCampo) {
+                    if ($tipoCampo === 'CURP' && !preg_match('/^[A-Z][AEIOU][A-Z]{2}/', $value)) {
+                        $fail('La CURP debe iniciar con letra, vocal y dos letras (Ej. ABCD...).');
+                    }
+                    if ($tipoCampo === 'RFC' && !preg_match('/^[A-ZÑ&]{3,4}/', $value)) {
+                        $fail('El RFC debe iniciar con 3 o 4 letras (Ej. ABC... o ABCD...).');
+                    }
+                },
                 // Límites máximos por tipo de dato (ya no se exige la longitud
                 // completa ni la estructura exacta, para permitir búsqueda parcial)
                 Rule::when($tipoCampo === 'CURP', ['max:18']),
