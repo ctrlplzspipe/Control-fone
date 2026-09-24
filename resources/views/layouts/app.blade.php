@@ -28,9 +28,14 @@
                 width: 0%;
             }
         }
+
+        /* Evita que SweetAlert2 altere la altura o padding del body y desplace el footer */
+        body.swal2-shown {
+            height: 100% !important;
+            overflow: hidden !important;
+        }
     </style>
 </head>
-
 
 <body
     class="bg-[#F8FAFC] h-full flex flex-col font-sans text-gray-800 antialiased selection:bg-[#9B2242] selection:text-white overflow-x-hidden">
@@ -132,7 +137,8 @@
             @include('partials.sidebar')
         @endif
 
-        <main class="flex-1 min-w-0 overflow-y-auto {{ request()->is('login') ? 'p-0' : 'px-4 sm:px-6 lg:px-8 py-6' }}">
+        <main
+            class="flex-1 min-w-0 {{ request()->is('login') ? 'p-0 overflow-hidden flex flex-col justify-center' : 'px-4 sm:px-6 lg:px-8 py-6 overflow-y-auto' }}">
 
             <!-- Botón "Regresar al Menú Principal" -->
             @if(
@@ -262,7 +268,8 @@
                 cancelButtonColor: '#6b7280',
                 confirmButtonText: 'Sí, salir',
                 cancelButtonText: 'Cancelar',
-                reverseButtons: true
+                reverseButtons: true,
+                heightAuto: false // Desactiva que SweetAlert recalcule la altura del body
             }).then((result) => {
                 if (result.isConfirmed) {
                     window.location.href = "{{ url('/logout') }}";
