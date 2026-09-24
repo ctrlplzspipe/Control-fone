@@ -8,6 +8,10 @@ use ZipArchive;
 use Exception;
 use PDO;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Reader\IReadFilter;
+
+
+
 
 class CargaMdpController extends Controller
 {
@@ -88,7 +92,10 @@ class CargaMdpController extends Controller
             $csvPath = $tempPath . '/convertido_' . time() . '.csv';
 
             // Cargar el Excel extraído
-            $spreadsheet = IOFactory::load($txtPath);
+            $reader = IOFactory::createReaderForFile($txtPath);
+            $reader->setReadDataOnly(false); // Necesario para leer estilos y colores
+            $reader->setReadEmptyCells(false); // Evitar leer celdas vacías
+            $spreadsheet = $reader->load($txtPath);
 
             // Abrir archivo CSV temporal para escribir filas con la nueva columna de COLOR
             $handle = fopen($csvPath, 'w');
